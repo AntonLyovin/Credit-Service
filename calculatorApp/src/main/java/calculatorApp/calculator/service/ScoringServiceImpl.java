@@ -21,32 +21,45 @@ public class ScoringServiceImpl implements ScoringService {
 
     @Override
     public CreditDto calculateCredit(ScoringDataDto data) {
+        log.info("Начало расчета кредита для клиента. Данные: {}", data);
 
         CreditDto result = new CreditDto();
         ScoringResultDto scoringResult = performScoring(data);
 
         if (!scoringResult.isApproved()) {
-            throw new RuntimeException("Заявка отклонена: " + scoringResult.getRejectionReason());
+            String rejectionMessage = String.format("Заявка отклонена. Причина: %s", scoringResult.getRejectionReason());
+            log.warn(rejectionMessage);
+            throw new RuntimeException(rejectionMessage);
         }
-        log.info("Заявка одобрена");
-        BigDecimal rate = scoringResult.getRate();
-        BigDecimal psk = calculateTotalCost(data.getAmount(), rate);
-        BigDecimal monthlyPayment = calculateMonthlyPayment(psk, data.getTerm(), rate);
-        List<PaymentScheduleElementDto> schedule =
-                generatePaymentSchedule(psk, data.getTerm(), performScoring(data).getRate(), monthlyPayment);
 
+        log.info("Заявка одобрена. Установленная ставка: {}%", scoringResult.getRate());
 
-        result.setAmount(data.getAmount());
-        result.setTerm(data.getTerm());
-        result.setMonthlyPayment(monthlyPayment.setScale(2, RoundingMode.HALF_UP));
-        result.setRate(performScoring(data).getRate());
-        result.setPsk(calculateTotalCost(data.getAmount(), performScoring(data).getRate()));
-        result.setIsSalaryClient(data.getIsSalaryClient());
-        result.setIsInsuranceEnabled(data.getIsInsuranceEnabled());
-        result.setPaymentSchedule(schedule);
+        try {
+            BigDecimal rate = scoringResult.getRate();
+            BigDecimal psk = calculateTotalCost(data.getAmount(), rate);
+            log.debug("Рассчитана полная стоимость кредита (ПСК): {}", psk);
 
-        log.info("тут можно логировать что-то еще, к примеру, результат расчета");
-        return result;
+            BigDecimal monthlyPayment = calculateMonthlyPayment(psk, data.getTerm(), rate);
+            log.debug("Рассчитан ежемесячный платеж: {}", monthlyPayment);
+
+            List<PaymentScheduleElementDto> schedule = generatePaymentSchedule(psk, data.getTerm(), rate, monthlyPayment);
+            log.debug("Сгенерирован график платежей. Количество элементов: {}", schedule.size());
+
+            result.setAmount(data.getAmount());
+            result.setTerm(data.getTerm());
+            result.setMonthlyPayment(monthlyPayment.setScale(2, RoundingMode.HALF_UP));
+            result.setRate(rate);
+            result.setPsk(psk);
+            result.setIsSalaryClient(data.getIsSalaryClient());
+            result.setIsInsuranceEnabled(data.getIsInsuranceEnabled());
+            result.setPaymentSchedule(schedule);
+
+            log.info("Расчет кредита успешно завершен. Результат: {}", result);
+            return result;
+        } catch (Exception e) {
+            log.error("Ошибка при расчете кредита: {}", e.getMessage(), e);
+            throw new RuntimeException("Произошла ошибка при расчете кредита", e);
+        }
     }
 
     private List<PaymentScheduleElementDto> generatePaymentSchedule(BigDecimal psk, int termMonths,
