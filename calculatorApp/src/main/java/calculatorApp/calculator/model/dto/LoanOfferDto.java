@@ -9,6 +9,7 @@ import java.util.UUID;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 public class LoanOfferDto {
@@ -20,6 +21,5 @@ public class LoanOfferDto {
      BigDecimal rate;
      Boolean isInsuranceEnabled;
      Boolean isSalaryClient;
-     public LoanOfferDto() {
-     }
+
 }
