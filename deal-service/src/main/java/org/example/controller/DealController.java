@@ -36,6 +36,7 @@ public class DealController {
     @PostMapping("/offer/select")
     public ResponseEntity<Void> selectOffer(@RequestBody LoanOfferDto loanOfferDto) {
         statementService.selectOffer(loanOfferDto);
+        log.info("Начало выбора предложения. Тело запроса: {}", loanOfferDto);
         return ResponseEntity.ok().build();
     }
 }

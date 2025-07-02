@@ -1,9 +1,6 @@
 package org.example.model;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
@@ -14,6 +11,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class AppliedOffer implements Serializable {
     UUID statementId;
     BigDecimal requestedAmount;
@@ -23,4 +21,6 @@ public class AppliedOffer implements Serializable {
     BigDecimal rate;
     Boolean isInsuranceEnabled;
     Boolean isSalaryClient;
+
+
 }
