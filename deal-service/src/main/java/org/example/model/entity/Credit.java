@@ -1,7 +1,7 @@
 package org.example.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.example.model.PaymentSchedule;
 import org.example.model.enumerated.CreditStatus;
@@ -9,12 +9,17 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "credit")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Credit {
     @Id
     @Column(name = "credit_id")
@@ -36,8 +41,8 @@ public class Credit {
     BigDecimal psk;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "payment_schedule")
-    PaymentSchedule paymentSchedule;
+    @Column(name = "payment_schedule", columnDefinition = "jsonb")
+    List<PaymentSchedule> paymentSchedule;
 
     @Column(name = "insurance_enabled")
     Boolean insuranceEnabled;

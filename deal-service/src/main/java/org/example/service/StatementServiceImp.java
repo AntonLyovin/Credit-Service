@@ -47,7 +47,7 @@ public class StatementServiceImp implements StatementService {
         this.restTemplate = restTemplate;
     }
 
-    private static final String CALCULATOR_SERVICE_URL = "http://localhost:8080/calculator/offers";
+    private static final String PRESCORING_SERVICE_URL = "http://localhost:8080/calculator/offers";
 
     public List<LoanOfferDto> createStatement(LoanStatementRequestDto requestDto) {
         if (requestDto == null) {
@@ -111,7 +111,7 @@ public class StatementServiceImp implements StatementService {
             log.info("Отправка данных для расчета в калькулятор");
             HttpEntity<LoanStatementRequestDto> requestEntity = new HttpEntity<>(requestDto, headers);
             ResponseEntity<List<LoanOfferDto>> response = restTemplate.exchange(
-                    CALCULATOR_SERVICE_URL,
+                    PRESCORING_SERVICE_URL,
                     HttpMethod.POST,
                     requestEntity,
                     new ParameterizedTypeReference<>() {

@@ -7,13 +7,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.model.dto.FinishRegistrationRequestDto;
+import org.example.service.CreditService;
 import org.example.service.StatementService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.naming.ServiceUnavailableException;
 import java.util.List;
 
 @RestController
@@ -23,6 +23,7 @@ import java.util.List;
 
 public class DealController {
     private final StatementService statementService;
+    private final CreditService creditService;
 
     @PostMapping("/statement")
     @Operation(
@@ -38,5 +39,16 @@ public class DealController {
         statementService.selectOffer(loanOfferDto);
         log.info("Начало выбора предложения. Тело запроса: {}", loanOfferDto);
         return ResponseEntity.ok().build();
+    }
+    @PostMapping("/calculate/{statementId}")
+    public ResponseEntity<Void> finishCalculateCredit(
+            @PathVariable String statementId,
+            @RequestBody FinishRegistrationRequestDto requestDto) {
+        log.info("Начало финального расчета. statementId: {} Тело запроса: {}", statementId,requestDto);
+        try {
+            return creditService.finishCalculateCredit(requestDto, statementId);
+        } catch (ServiceUnavailableException e) {
+            return ResponseEntity.status(503).build(); // 503 Service Unavailable
+        }
     }
 }
