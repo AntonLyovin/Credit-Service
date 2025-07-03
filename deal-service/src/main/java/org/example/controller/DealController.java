@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.naming.ServiceUnavailableException;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/deal")
@@ -42,13 +43,16 @@ public class DealController {
     }
     @PostMapping("/calculate/{statementId}")
     public ResponseEntity<Void> finishCalculateCredit(
-            @PathVariable String statementId,
+            String statementId,
             @RequestBody FinishRegistrationRequestDto requestDto) {
-        log.info("Начало финального расчета. statementId: {} Тело запроса: {}", statementId,requestDto);
         try {
+            UUID.fromString(statementId); // Дополнительная проверка
+            log.info("Начало финального расчета. statementId: {} Тело запроса: {}", statementId, requestDto);
             return creditService.finishCalculateCredit(requestDto, statementId);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         } catch (ServiceUnavailableException e) {
-            return ResponseEntity.status(503).build(); // 503 Service Unavailable
+            return ResponseEntity.status(503).build();
         }
     }
 }

@@ -58,6 +58,4 @@ public class Statement {
     private List<StatusHistory> statusHistory = new ArrayList<>();
 
 
-    public void setClient(Client client) {
-    }
 }

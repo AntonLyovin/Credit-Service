@@ -3,15 +3,15 @@ package calculatorApp.calculator.model.dto;
 import calculatorApp.calculator.model.enumerated.EmploymentStatusEnum;
 import calculatorApp.calculator.model.enumerated.Position;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Setter
+@Getter
 public class EmploymentDto {
     @Schema(description = "Статус работы", defaultValue = "SELF_EMPLOYED")
     private EmploymentStatusEnum employmentStatus;

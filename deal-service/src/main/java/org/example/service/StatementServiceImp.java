@@ -185,7 +185,7 @@ public class StatementServiceImp implements StatementService {
         existing.setIsSalaryClient(newData.getIsSalaryClient());
     }
 
-    private AppliedOffer convertToAppliedOffer(LoanOfferDto dto) {
+    AppliedOffer convertToAppliedOffer(LoanOfferDto dto) {
         log.info("Конвертация из LoanOfferDto в AppliedOffer");
         return AppliedOffer.builder()
                 .statementId(UUID.randomUUID())

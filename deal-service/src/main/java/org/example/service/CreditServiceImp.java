@@ -70,7 +70,7 @@ public class CreditServiceImp implements CreditService {
         return ResponseEntity.ok().build();
     }
 
-    private ScoringDataDto buildScoringData(FinishRegistrationRequestDto requestDto, Statement statement) {
+    ScoringDataDto buildScoringData(FinishRegistrationRequestDto requestDto, Statement statement) {
         return ScoringDataDto.builder()
                 .amount(statement.getAppliedOffer().getRequestedAmount())
                 .term(statement.getAppliedOffer().getTerm())
@@ -110,7 +110,7 @@ public class CreditServiceImp implements CreditService {
         }
     }
 
-    private void createAndSaveCredit(CreditDto creditDto, Statement statement) {
+    void createAndSaveCredit(CreditDto creditDto, Statement statement) {
         log.info("Конвертирования списка платежей");
         List<PaymentSchedule> paymentSchedules = creditDto.getPaymentSchedule().stream()
                 .map(dto -> PaymentSchedule.builder()
@@ -141,7 +141,7 @@ public class CreditServiceImp implements CreditService {
 
     }
 
-    private void updateStatementStatus(Statement statement) {
+    void updateStatementStatus(Statement statement) {
         log.info("Обновление статуса");
         statement.setStatus(ApplicationStatus.CREDIT_ISSUED);
 

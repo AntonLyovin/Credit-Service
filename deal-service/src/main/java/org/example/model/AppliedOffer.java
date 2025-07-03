@@ -12,6 +12,7 @@ import java.util.UUID;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
+@NoArgsConstructor
 public class AppliedOffer implements Serializable {
     UUID statementId;
     BigDecimal requestedAmount;

@@ -4,10 +4,7 @@ import calculatorApp.calculator.model.enumerated.EmploymentStatusEnum;
 import calculatorApp.calculator.model.enumerated.Position;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
@@ -18,6 +15,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class Employment implements Serializable {
 
     UUID employment;
