@@ -1,12 +1,12 @@
 package org.example.model.entity;
 
-import calculatorApp.calculator.model.enumerated.Gender;
-import calculatorApp.calculator.model.enumerated.MartialStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.example.model.Employment;
 import org.example.model.Passport;
+import org.example.model.enumerated.Gender;
+import org.example.model.enumerated.MaritalStatus;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -46,8 +46,8 @@ public class Client {
     Gender gender;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "martial_status")
-    MartialStatus martialStatus;
+    @Column(name = "marital_status")
+    MaritalStatus maritalStatus;
 
     @Column(name = "dependent_amount")
     Integer dependentAmount;

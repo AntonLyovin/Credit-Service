@@ -1,10 +1,10 @@
 package org.example.model.dto;
 
-import calculatorApp.calculator.model.dto.EmploymentDto;
-import calculatorApp.calculator.model.enumerated.Gender;
-import calculatorApp.calculator.model.enumerated.MartialStatus;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.example.model.enumerated.Gender;
+import org.example.model.enumerated.MaritalStatus;
 
 import java.time.LocalDate;
 @Data
@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class FinishRegistrationRequestDto {
      Gender gender;
-     MartialStatus maritalStatus;
+     MaritalStatus maritalStatus;
      Integer dependentAmount;
      EmploymentDto employment;
      String passportSeries;

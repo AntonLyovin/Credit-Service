@@ -1,11 +1,14 @@
 package org.example.service;
 
-import calculatorApp.calculator.model.dto.LoanOfferDto;
-import calculatorApp.calculator.model.dto.LoanStatementRequestDto;
 
+
+import org.example.model.dto.LoanOfferDto;
+import org.example.model.dto.LoanStatementRequestDto;
+
+import javax.naming.ServiceUnavailableException;
 import java.util.List;
 
 public interface StatementService {
-    List<LoanOfferDto> createStatement(LoanStatementRequestDto requestDto);
+    List<LoanOfferDto> createStatement(LoanStatementRequestDto requestDto) throws ServiceUnavailableException;
     void selectOffer(LoanOfferDto loanOfferDto);
 }

@@ -1,18 +1,18 @@
 package org.example.service;
 
-import calculatorApp.calculator.model.dto.LoanOfferDto;
-import calculatorApp.calculator.model.dto.LoanStatementRequestDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.example.config.PreScoringServiceProperties;
 import org.example.model.AppliedOffer;
 import org.example.model.StatusHistory;
+import org.example.model.dto.LoanOfferDto;
+import org.example.model.dto.LoanStatementRequestDto;
 import org.example.model.entity.Client;
 import org.example.model.entity.Statement;
 import org.example.model.enumerated.ApplicationStatus;
 import org.example.model.enumerated.ChangeType;
 import org.example.repository.ClientRepository;
 import org.example.repository.StatementRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -28,26 +28,18 @@ import java.util.*;
 @Service
 @Slf4j
 public class StatementServiceImp implements StatementService {
-    StatementRepository statementRepository;
-    ClientRepository clientRepository;
-    RestTemplate restTemplate;
+    private final StatementRepository statementRepository;
+    private final ClientRepository clientRepository;
+    private final RestTemplate restTemplate;
+    private final PreScoringServiceProperties preScoringServiceProperties;
 
-    @Autowired
-    public void setClientRepository(ClientRepository clientRepository) {
-        this.clientRepository = clientRepository;
-    }
-
-    @Autowired
-    public void setStatementRepository(StatementRepository statementRepository) {
+    public StatementServiceImp(StatementRepository statementRepository, ClientRepository clientRepository, RestTemplate restTemplate, PreScoringServiceProperties preScoringServiceProperties) {
         this.statementRepository = statementRepository;
-    }
-
-    @Autowired
-    public void setRestTemplate(RestTemplate restTemplate) {
+        this.clientRepository = clientRepository;
         this.restTemplate = restTemplate;
+        this.preScoringServiceProperties = preScoringServiceProperties;
     }
 
-    private static final String PRESCORING_SERVICE_URL = "http://localhost:8080/calculator/offers";
 
     public List<LoanOfferDto> createStatement(LoanStatementRequestDto requestDto) {
         if (requestDto == null) {
@@ -59,12 +51,12 @@ public class StatementServiceImp implements StatementService {
         client = clientRepository.save(client);
         log.info("Создание клиента с ID: {}", client.getClientId());
 
+
         Statement statement = createNewStatement(client);
         statement = statementRepository.save(statement);
         log.info("Создание нового statement ID: {}", statement.getStatementId());
 
         List<LoanOfferDto> offers = fetchOffersFromCalculator(requestDto);
-
         UUID statementId = statement.getStatementId();
         offers.forEach(offer -> offer.setStatementId(statementId));
         offers.sort(Comparator.comparing(LoanOfferDto::getRate));
@@ -84,7 +76,7 @@ public class StatementServiceImp implements StatementService {
                 .build();
     }
 
-    private Client convertToClient(LoanStatementRequestDto dto) {
+    Client convertToClient(LoanStatementRequestDto dto) {
         log.info("Начало преобразования в клиента из ДТО");
         return Client.builder()
                 .clientId(UUID.randomUUID())
@@ -94,7 +86,7 @@ public class StatementServiceImp implements StatementService {
                 .birthDate(dto.getBirthdate())
                 .email(dto.getEmail())
                 .gender(null)
-                .martialStatus(null)
+                .maritalStatus(null)
                 .dependentAmount(null)
                 .passport(null)
                 .employment(null)
@@ -111,7 +103,7 @@ public class StatementServiceImp implements StatementService {
             log.info("Отправка данных для расчета в калькулятор");
             HttpEntity<LoanStatementRequestDto> requestEntity = new HttpEntity<>(requestDto, headers);
             ResponseEntity<List<LoanOfferDto>> response = restTemplate.exchange(
-                    PRESCORING_SERVICE_URL,
+                    preScoringServiceProperties.getUrl(),
                     HttpMethod.POST,
                     requestEntity,
                     new ParameterizedTypeReference<>() {
@@ -131,7 +123,7 @@ public class StatementServiceImp implements StatementService {
         }
     }
 
-    private List<StatusHistory> createStatusHistory() {
+    List<StatusHistory> createStatusHistory() {
         log.info("Создание statusHistory");
         List<StatusHistory> statusHistoryList = new ArrayList<>();
         statusHistoryList.add(StatusHistory.builder()
@@ -185,7 +177,7 @@ public class StatementServiceImp implements StatementService {
         existing.setIsSalaryClient(newData.getIsSalaryClient());
     }
 
-    AppliedOffer convertToAppliedOffer(LoanOfferDto dto) {
+    public AppliedOffer convertToAppliedOffer(LoanOfferDto dto) {
         log.info("Конвертация из LoanOfferDto в AppliedOffer");
         return AppliedOffer.builder()
                 .statementId(UUID.randomUUID())
@@ -199,4 +191,5 @@ public class StatementServiceImp implements StatementService {
                 .isSalaryClient(dto.getIsSalaryClient())
                 .build();
     }
+
 }

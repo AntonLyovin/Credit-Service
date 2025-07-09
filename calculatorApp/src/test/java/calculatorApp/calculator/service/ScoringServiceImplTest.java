@@ -6,7 +6,7 @@ import calculatorApp.calculator.model.dto.PaymentScheduleElementDto;
 import calculatorApp.calculator.model.dto.ScoringDataDto;
 import calculatorApp.calculator.model.enumerated.EmploymentStatusEnum;
 import calculatorApp.calculator.model.enumerated.Gender;
-import calculatorApp.calculator.model.enumerated.MartialStatus;
+import calculatorApp.calculator.model.enumerated.MaritalStatus;
 import calculatorApp.calculator.model.enumerated.Position;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +52,7 @@ public class ScoringServiceImplTest {
         data.setPassportNumber("555555");
         data.setPassportIssueDate(LocalDate.of(1995, 1, 1));
         data.setPassportIssueBranch("dad");
-        data.setMaritalStatus(MartialStatus.MARRIED);
+        data.setMaritalStatus(MaritalStatus.MARRIED);
         data.setDependentAmount(144444);
         data.setEmployment(employment);
         data.setIsInsuranceEnabled(true);
