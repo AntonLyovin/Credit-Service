@@ -1,6 +1,6 @@
 package calculatorApp.calculator.model.enumerated;
 
-public enum MartialStatus {
+public enum MaritalStatus {
     SINGLE,
     MARRIED,
     DIVORCED

@@ -1,8 +1,9 @@
 package org.example.controller;
 
-import calculatorApp.calculator.model.dto.LoanOfferDto;
-import calculatorApp.calculator.model.dto.LoanStatementRequestDto;
+import org.example.exception.custom.ScoringServiceUnavailableException;
 import org.example.model.dto.FinishRegistrationRequestDto;
+import org.example.model.dto.LoanOfferDto;
+import org.example.model.dto.LoanStatementRequestDto;
 import org.example.service.CreditService;
 import org.example.service.StatementService;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,7 @@ class DealControllerTest {
     private DealController dealController;
 
     @Test
-    void createStatement_ShouldReturnLoanOffers() {
+    void createStatement_ShouldReturnLoanOffers() throws ServiceUnavailableException {
         LoanStatementRequestDto requestDto = new LoanStatementRequestDto();
         List<LoanOfferDto> expectedOffers = List.of(new LoanOfferDto());
         when(statementService.createStatement(any(LoanStatementRequestDto.class))).thenReturn(expectedOffers);
@@ -68,27 +69,30 @@ class DealControllerTest {
     }
 
     @Test
-    void finishCalculateCredit_WhenServiceUnavailable_ShouldReturn503() throws ServiceUnavailableException {
+    void finishCalculateCredit_WhenServiceUnavailable_ShouldThrowException() throws ServiceUnavailableException {
         String statementId = "550e8400-e29b-41d4-a716-446655440000";
         FinishRegistrationRequestDto requestDto = new FinishRegistrationRequestDto();
-        when(creditService.finishCalculateCredit(any(), anyString()))
-                .thenThrow(new ServiceUnavailableException("Service unavailable"));
 
-        ResponseEntity<Void> response = dealController.finishCalculateCredit(statementId, requestDto);
+        when(creditService.finishCalculateCredit(any(FinishRegistrationRequestDto.class), eq(statementId)))
+                .thenThrow(new ServiceUnavailableException("Scoring service unavailable"));
 
-        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
+        assertThrows(ServiceUnavailableException.class, () -> {
+            dealController.finishCalculateCredit(statementId, requestDto);
+        });
+
         verify(creditService).finishCalculateCredit(requestDto, statementId);
     }
 
     @Test
-    void finishCalculateCredit_WhenInvalidStatementId_ShouldReturnBadRequest() {
+    void finishCalculateCredit_WhenInvalidStatementId_ShouldPassThrough() throws ServiceUnavailableException {
         String invalidStatementId = "invalid-uuid";
         FinishRegistrationRequestDto requestDto = new FinishRegistrationRequestDto();
 
+        when(creditService.finishCalculateCredit(any(), any())).thenReturn(null);
+
         ResponseEntity<Void> response = dealController.finishCalculateCredit(invalidStatementId, requestDto);
 
-        assertNotNull(response, "Ответ не должен быть null");
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        verifyNoInteractions(creditService);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(creditService).finishCalculateCredit(requestDto, invalidStatementId);
     }
 }

@@ -16,3 +16,11 @@ springdoc:
 
 server:
   port: 8081
+
+scoring:
+  service:
+    url: http://localhost:8080/calculator/calc
+
+pre-scoring:
+  service:
+    url: http://localhost:8080/calculator/offers

@@ -1,10 +1,10 @@
-package calculatorApp.calculator.model.dto;
+package org.example.model.dto;
 
-import calculatorApp.calculator.model.enumerated.Gender;
-import calculatorApp.calculator.model.enumerated.MaritalStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.example.model.enumerated.Gender;
+import org.example.model.enumerated.MaritalStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

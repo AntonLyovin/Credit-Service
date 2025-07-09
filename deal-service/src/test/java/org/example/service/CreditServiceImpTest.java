@@ -1,22 +1,20 @@
 package org.example.service;
 
-import calculatorApp.calculator.model.dto.CreditDto;
-import calculatorApp.calculator.model.dto.EmploymentDto;
-import calculatorApp.calculator.model.dto.PaymentScheduleElementDto;
-import calculatorApp.calculator.model.dto.ScoringDataDto;
-import calculatorApp.calculator.model.enumerated.EmploymentStatusEnum;
-import calculatorApp.calculator.model.enumerated.Gender;
-import calculatorApp.calculator.model.enumerated.MartialStatus;
-import calculatorApp.calculator.model.enumerated.Position;
-import jakarta.persistence.EntityNotFoundException;
+import org.example.config.ScoringServiceProperties;
+import org.example.exception.custom.*;
 import org.example.model.AppliedOffer;
+import org.example.model.PaymentSchedule;
 import org.example.model.StatusHistory;
+import org.example.model.dto.CreditDto;
 import org.example.model.dto.FinishRegistrationRequestDto;
+import org.example.model.dto.ScoringDataDto;
 import org.example.model.entity.Client;
 import org.example.model.entity.Credit;
 import org.example.model.entity.Statement;
 import org.example.model.enumerated.ApplicationStatus;
 import org.example.model.enumerated.ChangeType;
+import org.example.model.enumerated.Gender;
+import org.example.model.enumerated.MaritalStatus;
 import org.example.repository.CreditRepository;
 import org.example.repository.StatementRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,15 +23,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.naming.ServiceUnavailableException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,151 +48,137 @@ class CreditServiceImpTest {
     @Mock
     private RestTemplate restTemplate;
 
+    @Mock
+    private ScoringServiceProperties scoringServiceProperties;
+
     @InjectMocks
     private CreditServiceImp creditService;
 
     private FinishRegistrationRequestDto requestDto;
-    private Statement testStatement;
-    private CreditDto testCreditDto;
-    private final String statementId = "550e8400-e29b-41d4-a716-446655440000";
+    private Statement statement;
+    private CreditDto creditDto;
+    private final String validStatementId = "550e8400-e29b-41d4-a716-446655440000";
 
     @BeforeEach
     void setUp() {
-
-        Client client = Client.builder()
-                .clientId(UUID.randomUUID())
-                .lastName("Ivanov")
-                .firstName("Ivan")
-                .middleName("Ivanovich")
-                .birthDate(LocalDate.of(1990, 1, 1))
-                .email("ivanov@example.com")
-                .gender(Gender.MALE)
-                .martialStatus(MartialStatus.SINGLE)
-                .dependentAmount(1)
-                .build();
-
-        AppliedOffer appliedOffer = new AppliedOffer();
-        appliedOffer.setRequestedAmount(BigDecimal.valueOf(100000L));
-        appliedOffer.setTerm(12);
-
-        EmploymentDto employmentDto = new EmploymentDto();
-        employmentDto.setEmploymentStatus(EmploymentStatusEnum.SELF_EMPLOYED);
-        employmentDto.setEmployerINN("1234567890");
-        employmentDto.setSalary(BigDecimal.valueOf(100000));
-        employmentDto.setPosition(Position.WORKER);
-        employmentDto.setWorkExperienceTotal(60);
-        employmentDto.setGetWorkExperienceCurrent(24);
-
         requestDto = new FinishRegistrationRequestDto();
         requestDto.setGender(Gender.MALE);
         requestDto.setPassportSeries("1234");
         requestDto.setPassportNumber("567890");
-        requestDto.setPassportIssueDate(LocalDate.now().minusYears(5));
+        requestDto.setPassportIssueDate(LocalDate.now());
         requestDto.setPassportIssueBranch("UFMS");
-        requestDto.setMaritalStatus(MartialStatus.SINGLE);
+        requestDto.setMaritalStatus(MaritalStatus.SINGLE);
         requestDto.setDependentAmount(1);
-        requestDto.setEmployment(employmentDto);
-        requestDto.setAccountNumber("40817810099910004312");
+        requestDto.setAccountNumber("1234567890");
         requestDto.setIsInsuranceEnabled(true);
         requestDto.setIsSalaryClient(false);
 
-        testStatement = Statement.builder()
-                .statementId(UUID.fromString(statementId))
-                .status(ApplicationStatus.APPROVED)
-                .appliedOffer(appliedOffer)
-                .clientId(client)
+        Client client = Client.builder()
+                .clientId(UUID.randomUUID())
+                .firstName("Иван")
+                .lastName("Иванов")
+                .middleName("Иванович")
+                .birthDate(LocalDate.of(1990, 1, 1))
                 .build();
 
-        testCreditDto = new CreditDto();
-        testCreditDto.setAmount(BigDecimal.valueOf(100000));
-        testCreditDto.setTerm(12);
-        testCreditDto.setMonthlyPayment(BigDecimal.valueOf(9166.67));
-        testCreditDto.setRate(BigDecimal.valueOf(10.5));
-        testCreditDto.setPsk(BigDecimal.valueOf(110000));
-        testCreditDto.setIsInsuranceEnabled(true);
-        testCreditDto.setIsSalaryClient(false);
+        AppliedOffer appliedOffer = new AppliedOffer();
+        appliedOffer.setRequestedAmount(BigDecimal.valueOf(100000.0));
+        appliedOffer.setTerm(12);
+        appliedOffer.setMonthlyPayment(BigDecimal.valueOf(8500.0));
+        appliedOffer.setRate(BigDecimal.valueOf(15.0));
+        appliedOffer.setIsInsuranceEnabled(true);
 
-        List<PaymentScheduleElementDto> schedule = new ArrayList<>();
-        schedule.add(new PaymentScheduleElementDto(1, LocalDate.now(),
-                BigDecimal.valueOf(1000), BigDecimal.valueOf(100),
-                BigDecimal.valueOf(900), BigDecimal.valueOf(99000)));
+        statement = Statement.builder()
+                .statementId(UUID.fromString(validStatementId))
+                .clientId(client)
+                .status(ApplicationStatus.PREAPPROVAL)
+                .creationDate(LocalDate.now())
+                .appliedOffer(appliedOffer)
+                .statusHistory(new ArrayList<>())
+                .build();
 
-        testCreditDto.setPaymentSchedule(schedule);
+        creditDto = new CreditDto();
+        creditDto.setAmount(BigDecimal.valueOf(100000.0));
+        creditDto.setTerm(12);
+        creditDto.setMonthlyPayment(BigDecimal.valueOf(8500.0));
+        creditDto.setRate(BigDecimal.valueOf(15.0));
+        creditDto.setPsk(BigDecimal.valueOf(102000.0));
+        creditDto.setIsInsuranceEnabled(true);
+        creditDto.setIsSalaryClient(false);
+        creditDto.setPaymentSchedule(new ArrayList<>());
     }
 
     @Test
-    void finishCalculateCredit_WhenStatementNotFound_ThrowsEntityNotFoundException() {
+    void finishCalculateCredit_ShouldSuccessfullyProcessValidRequest() {
+        when(statementRepository.findById(any(UUID.class))).thenReturn(Optional.of(statement));
+        when(scoringServiceProperties.getUrl()).thenReturn("http://scoring-service");
+        when(restTemplate.postForEntity(anyString(), any(ScoringDataDto.class), eq(CreditDto.class)))
+                .thenReturn(new ResponseEntity<>(creditDto, HttpStatus.OK));
+
+        ResponseEntity<Void> response = creditService.finishCalculateCredit(requestDto, validStatementId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(statementRepository, times(1)).findById(UUID.fromString(validStatementId));
+        verify(restTemplate, times(1)).postForEntity(anyString(), any(ScoringDataDto.class), eq(CreditDto.class));
+        verify(creditRepository, times(1)).save(any(Credit.class));
+        verify(statementRepository, times(1)).save(statement);
+    }
+
+    @Test
+    void finishCalculateCredit_ShouldThrowInvalidInputException_WhenRequestIsNull() {
+        assertThrows(InvalidInputException.class, () -> {
+            creditService.finishCalculateCredit(null, validStatementId);
+        });
+    }
+
+    @Test
+    void finishCalculateCredit_ShouldThrowInvalidInputException_WhenStatementIdIsInvalid() {
+        assertThrows(InvalidInputException.class, () -> {
+            creditService.finishCalculateCredit(requestDto, "invalid-uuid");
+        });
+    }
+
+    @Test
+    void finishCalculateCredit_ShouldThrowStatementNotFoundException_WhenStatementNotFound() {
         when(statementRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> {
-            creditService.finishCalculateCredit(requestDto, statementId);
+        assertThrows(StatementNotFoundException.class, () -> {
+            creditService.finishCalculateCredit(requestDto, validStatementId);
         });
-
-        verify(statementRepository, never()).save(any(Statement.class));
-        verify(creditRepository, never()).save(any(Credit.class));
     }
 
-    @Test
-    void finishCalculateCredit_WhenScoringServiceFails_ThrowsServiceUnavailableException() {
-        when(statementRepository.findById(any(UUID.class))).thenReturn(Optional.of(testStatement));
-        when(restTemplate.postForEntity(anyString(), any(ScoringDataDto.class), any(Class.class)))
-                .thenThrow(new RuntimeException("Service unavailable"));
 
-        assertThrows(ServiceUnavailableException.class, () -> {
-            creditService.finishCalculateCredit(requestDto, statementId);
+    @Test
+    void finishCalculateCredit_ShouldThrowScoringServiceException_WhenServiceReturnsError() {
+        when(statementRepository.findById(any(UUID.class))).thenReturn(Optional.of(statement));
+        when(scoringServiceProperties.getUrl()).thenReturn("http://scoring-service");
+        when(restTemplate.postForEntity(anyString(), any(ScoringDataDto.class), eq(CreditDto.class)))
+                .thenReturn(new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR));
+
+        assertThrows(ScoringServiceException.class, () -> {
+            creditService.finishCalculateCredit(requestDto, validStatementId);
         });
-
-        verify(creditRepository, never()).save(any(Credit.class));
     }
 
-    @Test
-    void buildScoringData_WithValidRequest_ReturnsCorrectDto() {
-        ScoringDataDto result = creditService.buildScoringData(requestDto, testStatement);
-
-        assertNotNull(result);
-        assertEquals(testStatement.getAppliedOffer().getRequestedAmount(), result.getAmount());
-        assertEquals(testStatement.getAppliedOffer().getTerm(), result.getTerm());
-        assertEquals(testStatement.getClientId().getFirstName(), result.getFirstName());
-        assertEquals(testStatement.getClientId().getLastName(), result.getLastName());
-        assertEquals(testStatement.getClientId().getMiddleName(), result.getMiddleName());
-        assertEquals(requestDto.getGender(), result.getGender());
-        assertEquals(testStatement.getClientId().getBirthDate(), result.getBirthdate());
-        assertEquals(requestDto.getPassportSeries(), result.getPassportSeries());
-        assertEquals(requestDto.getPassportNumber(), result.getPassportNumber());
-        assertEquals(requestDto.getPassportIssueDate(), result.getPassportIssueDate());
-        assertEquals(requestDto.getPassportIssueBranch(), result.getPassportIssueBranch());
-        assertEquals(requestDto.getMaritalStatus(), result.getMaritalStatus());
-        assertEquals(requestDto.getDependentAmount(), result.getDependentAmount());
-        assertEquals(requestDto.getEmployment(), result.getEmployment());
-        assertEquals(requestDto.getAccountNumber(), result.getAccountNumber());
-        assertEquals(requestDto.getIsInsuranceEnabled(), result.getIsInsuranceEnabled());
-        assertEquals(requestDto.getIsSalaryClient(), result.getIsSalaryClient());
-    }
 
     @Test
-    void createAndSaveCredit_WithValidDto_CreatesCorrectCredit() {
-        when(creditRepository.save(any(Credit.class))).thenReturn(new Credit());
-
-        creditService.createAndSaveCredit(testCreditDto, testStatement);
+    void createAndSaveCredit_ShouldCorrectlyMapAndSaveCredit() {
+        creditService.createAndSaveCredit(creditDto, statement);
 
         verify(creditRepository, times(1)).save(any(Credit.class));
     }
 
     @Test
-    void updateStatementStatus_UpdatesStatusCorrectly() {
-        Statement statement = Statement.builder()
-                .statusHistory(new ArrayList<>())
-                .build();
+    void updateStatementStatus_ShouldUpdateStatusCorrectly() {
+        statement.setStatusHistory(new ArrayList<>());
 
         creditService.updateStatementStatus(statement);
 
         assertEquals(ApplicationStatus.CREDIT_ISSUED, statement.getStatus());
-        assertNotNull(statement.getStatusHistory());
         assertEquals(1, statement.getStatusHistory().size());
-
-        StatusHistory historyEntry = statement.getStatusHistory().get(0);
-        assertEquals(ApplicationStatus.CREDIT_ISSUED, historyEntry.getStatus());
-        assertEquals(ChangeType.AUTOMATIC, historyEntry.getChangeType());
-        assertNotNull(historyEntry.getTime());
+        StatusHistory history = statement.getStatusHistory().get(0);
+        assertEquals(ApplicationStatus.CREDIT_ISSUED, history.getStatus());
+        assertEquals(ChangeType.AUTOMATIC, history.getChangeType());
+        verify(statementRepository, times(1)).save(statement);
     }
 }

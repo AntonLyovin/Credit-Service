@@ -10,10 +10,7 @@ import org.springframework.web.client.RestTemplate;
 @OpenAPIDefinition
 public class DealApplication {
     public static void main(String[] args) {
+
         SpringApplication.run(DealApplication.class, args);
-    }
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
     }
 }

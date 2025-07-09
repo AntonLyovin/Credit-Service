@@ -3,7 +3,7 @@ package calculatorApp.calculator.util;
 import calculatorApp.calculator.model.dto.*;
 import calculatorApp.calculator.model.enumerated.EmploymentStatusEnum;
 import calculatorApp.calculator.model.enumerated.Gender;
-import calculatorApp.calculator.model.enumerated.MartialStatus;
+import calculatorApp.calculator.model.enumerated.MaritalStatus;
 import calculatorApp.calculator.model.enumerated.Position;
 import lombok.extern.slf4j.Slf4j;
 
@@ -74,9 +74,9 @@ public class CreditScoring {
             return result;
         }
 
-        if (data.getMaritalStatus() == MartialStatus.MARRIED) {
+        if (data.getMaritalStatus() == MaritalStatus.MARRIED) {
             rate = rate.subtract(new BigDecimal("3"));
-        } else if (data.getMaritalStatus() == MartialStatus.DIVORCED) {
+        } else if (data.getMaritalStatus() == MaritalStatus.DIVORCED) {
             rate = rate.add(new BigDecimal("1"));
         }
 
