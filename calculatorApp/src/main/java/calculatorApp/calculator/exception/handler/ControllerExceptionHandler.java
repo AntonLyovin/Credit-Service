@@ -1,12 +1,16 @@
 package calculatorApp.calculator.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,8 +30,18 @@ public class ControllerExceptionHandler {
             errorMap.put("message", error.getDefaultMessage());
             errorList.add(errorMap);
         }
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        ex.printStackTrace(pw);
+        String stackTrace = sw.toString();
+
+
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("errors", errorList);
+        responseBody.put("timestamp", LocalDateTime.now());
+        responseBody.put("status", HttpStatus.BAD_REQUEST.value());
+        responseBody.put("stackTrace", stackTrace);
         return ResponseEntity.badRequest().body(responseBody);
     }
 }

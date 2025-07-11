@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class FinishRegistrationRequestDto {
      Gender gender;
      MaritalStatus maritalStatus;

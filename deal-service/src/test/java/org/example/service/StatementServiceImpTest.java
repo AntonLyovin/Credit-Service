@@ -7,6 +7,7 @@ import org.example.model.StatusHistory;
 import org.example.model.dto.LoanOfferDto;
 import org.example.model.dto.LoanStatementRequestDto;
 import org.example.model.entity.Client;
+import org.example.model.entity.Credit;
 import org.example.model.entity.Statement;
 import org.example.model.enumerated.ApplicationStatus;
 import org.example.model.enumerated.ChangeType;
@@ -15,6 +16,7 @@ import org.example.repository.StatementRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,7 +31,6 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,166 +39,82 @@ class StatementServiceImpTest {
     @Mock
     private StatementRepository statementRepository;
 
-    @Mock
-    private ClientRepository clientRepository;
-
-    @Mock
-    private RestTemplate restTemplate;
-
-    @Mock
-    private PreScoringServiceProperties preScoringServiceProperties;
-
     @InjectMocks
     private StatementServiceImp statementService;
 
-    private LoanStatementRequestDto loanRequestDto;
-    private LoanOfferDto loanOfferDto;
-    private Client client;
-    private Statement statement;
+    private Client testClient;
+    private LoanOfferDto testOffer;
+    private UUID testStatementId;
 
     @BeforeEach
     void setUp() {
-        loanRequestDto = new LoanStatementRequestDto();
-        loanRequestDto.setFirstName("Ivan");
-        loanRequestDto.setLastName("Ivanov");
-        loanRequestDto.setMiddleName("Ivanovich");
-        loanRequestDto.setBirthdate(LocalDate.of(1990, 1, 1));
-        loanRequestDto.setEmail("ivan@example.com");
+        testClient = new Client();
+        testClient.setClientId(UUID.randomUUID());
 
-        loanOfferDto = new LoanOfferDto();
-        loanOfferDto.setStatementId(UUID.randomUUID());
-        loanOfferDto.setRequestedAmount(BigDecimal.valueOf(100000));
-        loanOfferDto.setTotalAmount(BigDecimal.valueOf(120000));
-        loanOfferDto.setTerm(12);
-        loanOfferDto.setMonthlyPayment(BigDecimal.valueOf(10000));
-        loanOfferDto.setRate(BigDecimal.valueOf(10));
-        loanOfferDto.setIsInsuranceEnabled(true);
-        loanOfferDto.setIsSalaryClient(false);
-
-        client = Client.builder()
-                .clientId(UUID.randomUUID())
-                .firstName("Ivan")
-                .lastName("Ivanov")
-                .middleName("Ivanovich")
-                .birthDate(LocalDate.of(1990, 1, 1))
-                .email("ivan@example.com")
-                .build();
-
-        statement = Statement.builder()
-                .statementId(UUID.randomUUID())
-                .clientId(client)
-                .creationDate(LocalDate.now())
-                .status(ApplicationStatus.PREAPPROVAL)
-                .statusHistory(new ArrayList<>())
-                .build();
-    }
-
-    @Test
-    void createStatement_ShouldSuccessfullyCreateStatement() throws ServiceUnavailableException {
-        when(clientRepository.save(any(Client.class))).thenReturn(client);
-        when(statementRepository.save(any(Statement.class))).thenReturn(statement);
-
-        List<LoanOfferDto> mockOffers = Collections.singletonList(loanOfferDto);
-        ResponseEntity<List<LoanOfferDto>> responseEntity =
-                new ResponseEntity<>(mockOffers, HttpStatus.OK);
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.POST),
-                any(HttpEntity.class),
-                any(ParameterizedTypeReference.class)
-        )).thenReturn(responseEntity);
-
-        when(preScoringServiceProperties.getUrl()).thenReturn("http://calculator-service");
-
-        List<LoanOfferDto> result = statementService.createStatement(loanRequestDto);
-
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(loanOfferDto.getStatementId(), result.get(0).getStatementId());
-
-        verify(clientRepository, times(1)).save(any(Client.class));
-        verify(statementRepository, times(1)).save(any(Statement.class));
-        verify(restTemplate, times(1)).exchange(
-                anyString(),
-                eq(HttpMethod.POST),
-                any(HttpEntity.class),
-                any(ParameterizedTypeReference.class)
+        testOffer = new LoanOfferDto(
+                UUID.randomUUID(),
+                BigDecimal.valueOf(100000),
+                BigDecimal.valueOf(90000),
+                12,
+                BigDecimal.valueOf(8.5),
+                BigDecimal.valueOf(9500),
+                true,
+                true
         );
-    }
 
-    @Test
-    void createStatement_ShouldThrowException_WhenRequestIsNull() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            statementService.createStatement(null);
-        });
-    }
-
-    @Test
-    void createStatement_ShouldThrowServiceUnavailableException_WhenCalculatorFails() {
-        when(clientRepository.save(any(Client.class))).thenReturn(client);
-        when(statementRepository.save(any(Statement.class))).thenReturn(statement);
-        when(preScoringServiceProperties.getUrl()).thenReturn("http://calculator-service");
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.POST),
-                any(HttpEntity.class),
-                any(ParameterizedTypeReference.class)
-        )).thenThrow(new ResourceAccessException("Service unavailable"));
-
-        assertThrows(ResourceAccessException.class, () -> {
-            statementService.createStatement(loanRequestDto);
-        });
+        testStatementId = UUID.randomUUID();
     }
 
 
     @Test
-    void selectOffer_ShouldThrowException_WhenStatementNotFound() {
-        when(statementRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+    void applyOfferToStatement_WhenStatementNotFound_ShouldThrowException() {
+        // Arrange
+        when(statementRepository.findById(testStatementId)).thenReturn(Optional.empty());
 
+        // Act & Assert
         assertThrows(EntityNotFoundException.class, () -> {
-            statementService.selectOffer(loanOfferDto);
+            statementService.applyOfferToStatement(testStatementId, testOffer);
         });
     }
 
     @Test
-    void convertToClient_ShouldMapAllFieldsCorrectly() {
-        Client result = statementService.convertToClient(loanRequestDto);
+    void getStatementById_ShouldReturnStatement() {
+        // Arrange
+        Statement expectedStatement = Statement.builder()
+                .statementId(testStatementId)
+                .build();
 
-        assertEquals(loanRequestDto.getFirstName(), result.getFirstName());
-        assertEquals(loanRequestDto.getLastName(), result.getLastName());
-        assertEquals(loanRequestDto.getMiddleName(), result.getMiddleName());
-        assertEquals(loanRequestDto.getBirthdate(), result.getBirthDate());
-        assertEquals(loanRequestDto.getEmail(), result.getEmail());
-        assertNull(result.getGender());
-        assertNull(result.getMaritalStatus());
-        assertNull(result.getPassport());
-        assertNull(result.getEmployment());
+        when(statementRepository.findById(testStatementId)).thenReturn(Optional.of(expectedStatement));
+
+        // Act
+        Statement result = statementService.getStatementById(testStatementId);
+
+        // Assert
+        assertEquals(expectedStatement, result);
+        verify(statementRepository).findById(testStatementId);
     }
 
     @Test
-    void convertToAppliedOffer_ShouldMapAllFieldsCorrectly() {
-        AppliedOffer result = statementService.convertToAppliedOffer(loanOfferDto);
+    void getStatementById_WhenStatementNotFound_ShouldThrowException() {
+        // Arrange
+        when(statementRepository.findById(testStatementId)).thenReturn(Optional.empty());
 
-        assertEquals(loanOfferDto.getStatementId(), result.getStatementId());
-        assertEquals(loanOfferDto.getRequestedAmount(), result.getRequestedAmount());
-        assertEquals(loanOfferDto.getTotalAmount(), result.getTotalAmount());
-        assertEquals(loanOfferDto.getTerm(), result.getTerm());
-        assertEquals(loanOfferDto.getMonthlyPayment(), result.getMonthlyPayment());
-        assertEquals(loanOfferDto.getRate(), result.getRate());
-        assertEquals(loanOfferDto.getIsInsuranceEnabled(), result.getIsInsuranceEnabled());
-        assertEquals(loanOfferDto.getIsSalaryClient(), result.getIsSalaryClient());
+        // Act & Assert
+        assertThrows(EntityNotFoundException.class, () -> {
+            statementService.getStatementById(testStatementId);
+        });
     }
 
     @Test
-    void createStatusHistory_ShouldCreateInitialHistory() {
-        List<StatusHistory> result = statementService.createStatusHistory();
+    void createInitialStatusHistory_ShouldReturnCorrectHistory() {
+        // Act
+        List<StatusHistory> result = statementService.createInitialStatusHistory();
 
+        // Assert
         assertEquals(1, result.size());
-        StatusHistory history = result.get(0);
-        assertEquals(ApplicationStatus.PREAPPROVAL, history.getStatus());
-        assertEquals(ChangeType.AUTOMATIC, history.getChangeType());
-        assertEquals(LocalDate.now(), history.getTime());
+        assertEquals(ApplicationStatus.PREAPPROVAL, result.get(0).getStatus());
+        assertEquals(ChangeType.AUTOMATIC, result.get(0).getChangeType());
+        assertEquals(LocalDate.now(), result.get(0).getTime());
     }
+
 }

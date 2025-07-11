@@ -19,7 +19,7 @@ public class EmploymentDto {
     private String employerINN;
     @Schema(description = "Зарплата", defaultValue = "100000")
     private BigDecimal salary;
-    @Schema(description = "Должность", defaultValue = "DIRECTOR")
+    @Schema(description = "Должность", defaultValue = "WORKER")
     private Position position;
     @Schema(description = "Общий стаж работы в месяцах", defaultValue = "20")
     private Integer workExperienceTotal;
