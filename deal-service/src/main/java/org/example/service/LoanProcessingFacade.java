@@ -59,7 +59,7 @@ public class LoanProcessingFacade {
         statementService.updateStatementWithCredit(statement, credit);
     }
 
-    private ScoringDataDto buildScoringData(FinishRegistrationRequestDto requestDto, Statement statement) {
+    ScoringDataDto buildScoringData(FinishRegistrationRequestDto requestDto, Statement statement) {
         return ScoringDataDto.builder()
                 .amount(statement.getAppliedOffer().getRequestedAmount())
                 .term(statement.getAppliedOffer().getTerm())

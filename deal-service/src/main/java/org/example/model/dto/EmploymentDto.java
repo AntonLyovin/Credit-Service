@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Setter
 @Getter
+@Builder
 public class EmploymentDto {
     @Schema(description = "Статус работы", defaultValue = "SELF_EMPLOYED")
     private EmploymentStatusEnum employmentStatus;
