@@ -37,7 +37,7 @@ public class ScoringDataDto {
      private String middleName;
      @Schema(description = "Пол", defaultValue = "MALE")
      private Gender gender;
-     @Schema(description = "Дата рождения (гггг-мм-дд)")
+     @Schema(description = "Дата рождения (гггг-мм-дд)", defaultValue = "1990-01-01")
      private LocalDate birthdate;
      @Schema(description="Серия паспорта - 4 цифры", defaultValue = "4444")
      @Pattern(regexp="^\\d{4}$", message="Серия паспорта должна состоять из 4 цифр")

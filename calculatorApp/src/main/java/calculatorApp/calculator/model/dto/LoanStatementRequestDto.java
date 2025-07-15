@@ -36,7 +36,11 @@ public class LoanStatementRequestDto {
     @Schema(description = "Email адрес", defaultValue = "Ivanov@mail.ru")
     @Pattern(regexp = "^[a-z0-9A-Z_!#$%&'*+/=?`{|}~^.-]+@[a-z0-9A-Z.-]+$", message="Неправильный формат Email")
     private String email;
-    @Schema(description = "Дата рождения (гггг-мм-дд)", defaultValue = "1990-01-01")
+    @Schema(description = "Дата рождения (гггг-мм-дд)",
+            defaultValue = "1990-01-01",
+            example = "1990-01-01",
+            type = "string",
+            format = "date")
     private LocalDate birthdate;
     @Schema(description="Серия паспорта - 4 цифры", defaultValue = "4444")
     @Pattern(regexp="^\\d{4}$", message="Серия паспорта должна состоять из 4 цифр")
