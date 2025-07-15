@@ -3,15 +3,15 @@ package calculatorApp.calculator.model.dto;
 import calculatorApp.calculator.model.enumerated.EmploymentStatusEnum;
 import calculatorApp.calculator.model.enumerated.Position;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Setter
+@Getter
 public class EmploymentDto {
     @Schema(description = "Статус работы", defaultValue = "SELF_EMPLOYED")
     private EmploymentStatusEnum employmentStatus;
@@ -19,7 +19,7 @@ public class EmploymentDto {
     private String employerINN;
     @Schema(description = "Зарплата", defaultValue = "100000")
     private BigDecimal salary;
-    @Schema(description = "Должность", defaultValue = "DIRECTOR")
+    @Schema(description = "Должность", defaultValue = "OWNER")
     private Position position;
     @Schema(description = "Общий стаж работы в месяцах", defaultValue = "20")
     private Integer workExperienceTotal;

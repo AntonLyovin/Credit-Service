@@ -1,7 +1,7 @@
 package calculatorApp.calculator.model.dto;
 
 import calculatorApp.calculator.model.enumerated.Gender;
-import calculatorApp.calculator.model.enumerated.MartialStatus;
+import calculatorApp.calculator.model.enumerated.MaritalStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -50,7 +50,7 @@ public class ScoringDataDto {
      @Schema(description = "Кем выдан", defaultValue = "Issuing department")
      private String passportIssueBranch;
      @Schema(description = "Семейное положение", defaultValue = "SINGLE")
-     private MartialStatus maritalStatus;
+     private MaritalStatus maritalStatus;
      private Integer dependentAmount;
      private EmploymentDto employment;
      private String accountNumber;
