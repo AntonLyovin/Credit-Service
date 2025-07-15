@@ -15,7 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -66,7 +67,7 @@ public class StatementServiceImp implements StatementService {
     @Transactional
     public void updateStatementWithCredit(Statement statement, Credit credit) {
         statement.setCreditId(credit);
-        statement.setStatus(ApplicationStatus.CREDIT_ISSUED);
+        statement.setStatus(ApplicationStatus.CC_APPROVED);
         statement.getStatusHistory().add(createCreditIssuedStatusHistory());
         statementRepository.save(statement);
     }

@@ -9,5 +9,6 @@ public enum ApplicationStatus {
     DOCUMENT_CREATED,
     CLIENT_DENIED,
     DOCUMENT_SIGNED,
-    CREDIT_ISSUED
+    CREDIT_ISSUED,
+    CALCULATED
 }
