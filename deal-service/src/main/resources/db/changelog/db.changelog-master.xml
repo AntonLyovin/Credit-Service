@@ -1,0 +1,116 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!-- Миграция для таблицы clients -->
+    <changeSet id="1" author="your_name">
+        <createTable tableName="clients">
+            <column name="client_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="last_name" type="VARCHAR(100)"/>
+            <column name="first_name" type="VARCHAR(100)"/>
+            <column name="middle_name" type="VARCHAR(100)"/>
+            <column name="birth_date" type="DATE"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="gender" type="VARCHAR(20)"/>
+            <column name="marital_status" type="VARCHAR(20)"/>
+            <column name="dependent_amount" type="INTEGER"/>
+            <column name="passport" type="jsonb"/>
+            <column name="employment" type="jsonb"/>
+            <column name="account_number" type="VARCHAR(50)"/>
+        </createTable>
+
+        <createIndex indexName="idx_clients_email" tableName="clients">
+            <column name="email"/>
+        </createIndex>
+
+        <createIndex indexName="idx_clients_account_number" tableName="clients">
+            <column name="account_number"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Миграция для таблицы credit -->
+    <changeSet id="2" author="your_name">
+        <createTable tableName="credit">
+            <column name="credit_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="amount" type="NUMERIC(15,2)"/>
+            <column name="term" type="INTEGER"/>
+            <column name="monthly_payment" type="NUMERIC(15,2)"/>
+            <column name="rate" type="NUMERIC(6,4)"/>
+            <column name="psk" type="NUMERIC(15,2)"/>
+            <column name="payment_schedule" type="jsonb"/>
+            <column name="insurance_enabled" type="BOOLEAN"/>
+            <column name="salary_client" type="BOOLEAN"/>
+            <column name="credit_status" type="VARCHAR(50)"/>
+        </createTable>
+
+        <createIndex indexName="idx_credit_amount" tableName="credit">
+            <column name="amount"/>
+        </createIndex>
+
+        <createIndex indexName="idx_credit_status" tableName="credit">
+            <column name="credit_status"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Миграция для таблицы statement -->
+    <changeSet id="3" author="your_name">
+        <createTable tableName="statement">
+            <column name="statement_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="client_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints nullable="true"/>
+            </column>
+            <column name="credit_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints nullable="true"/>
+            </column>
+            <column name="application_status" type="VARCHAR(50)"/>
+            <column name="creation_date" type="DATE"/>
+            <column name="applied_offer" type="jsonb"/>
+            <column name="sign_date" type="DATE"/>
+            <column name="ses_code" type="VARCHAR(100)"/>
+            <column name="status_history" type="jsonb"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="statement"
+                baseColumnNames="client_id"
+                constraintName="fk_statement_client"
+                referencedTableName="clients"
+                referencedColumnNames="client_id"/>
+
+        <addForeignKeyConstraint
+                baseTableName="statement"
+                baseColumnNames="credit_id"
+                constraintName="fk_statement_credit"
+                referencedTableName="credit"
+                referencedColumnNames="credit_id"/>
+
+        <createIndex indexName="idx_statement_client_id" tableName="statement">
+            <column name="client_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_statement_credit_id" tableName="statement">
+            <column name="credit_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_statement_creation_date" tableName="statement">
+            <column name="creation_date"/>
+        </createIndex>
+
+        <createIndex indexName="idx_statement_application_status" tableName="statement">
+            <column name="application_status"/>
+        </createIndex>
+
+        <createIndex indexName="idx_statement_ses_code" tableName="statement">
+            <column name="ses_code"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

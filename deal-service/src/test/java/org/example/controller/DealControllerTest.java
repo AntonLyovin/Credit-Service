@@ -4,9 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.model.dto.FinishRegistrationRequestDto;
 import org.example.model.dto.LoanOfferDto;
 import org.example.model.dto.LoanStatementRequestDto;
-import org.example.model.enumerated.EmploymentStatusEnum;
-import org.example.model.enumerated.Gender;
-import org.example.model.enumerated.MaritalStatus;
 import org.example.service.LoanProcessingFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,16 +15,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import javax.naming.ServiceUnavailableException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class DealControllerTest {

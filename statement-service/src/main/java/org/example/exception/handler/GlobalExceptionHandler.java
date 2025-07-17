@@ -78,7 +78,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
-    private String extractFieldName(String errorMessage) {
+    public String extractFieldName(String errorMessage) {
         try {
             return errorMessage.split("type `[^`]+` from String")[0]
                     .split("`")[1]
@@ -88,7 +88,7 @@ public class GlobalExceptionHandler {
         }
     }
 
-    private String getEnumValues(String errorMessage) {
+    public String getEnumValues(String errorMessage) {
         try {
             String valuesPart = errorMessage.split("values accepted for Enum class: \\[")[1]
                     .split("]")[0];
