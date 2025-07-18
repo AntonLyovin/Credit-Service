@@ -11,7 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -89,7 +88,6 @@ class ClientServiceImpTest {
 
     private Client createTestClient() {
         return Client.builder()
-                .clientId(UUID.randomUUID())
                 .lastName("Ivanov")
                 .firstName("Ivan")
                 .middleName("Ivanovich")
