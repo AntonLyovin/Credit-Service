@@ -1,37 +1,30 @@
 package org.example.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.example.config.PreScoringServiceProperties;
-import org.example.model.AppliedOffer;
 import org.example.model.StatusHistory;
 import org.example.model.dto.LoanOfferDto;
-import org.example.model.dto.LoanStatementRequestDto;
 import org.example.model.entity.Client;
-import org.example.model.entity.Credit;
 import org.example.model.entity.Statement;
 import org.example.model.enumerated.ApplicationStatus;
 import org.example.model.enumerated.ChangeType;
-import org.example.repository.ClientRepository;
 import org.example.repository.StatementRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
 
-import javax.naming.ServiceUnavailableException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class StatementServiceImpTest {
@@ -49,7 +42,6 @@ class StatementServiceImpTest {
     @BeforeEach
     void setUp() {
         testClient = new Client();
-        testClient.setClientId(UUID.randomUUID());
 
         testOffer = new LoanOfferDto(
                 UUID.randomUUID(),
