@@ -23,6 +23,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Client {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "client_id")
     UUID clientId;
 

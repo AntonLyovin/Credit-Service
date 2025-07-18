@@ -7,8 +7,6 @@ import org.example.repository.ClientRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 @Service
 @Slf4j
 public class ClientServiceImp implements ClientService{
@@ -22,7 +20,6 @@ public class ClientServiceImp implements ClientService{
     @Transactional
     public Client createClient(LoanStatementRequestDto requestDto) {
         Client client = Client.builder()
-                .clientId(UUID.randomUUID())
                 .lastName(requestDto.getLastName())
                 .firstName(requestDto.getFirstName())
                 .middleName(requestDto.getMiddleName())

@@ -13,11 +13,11 @@ import org.example.repository.CreditRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.*;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import javax.naming.ServiceUnavailableException;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,7 +69,6 @@ public class CreditServiceImp implements CreditService {
                 .collect(Collectors.toList());
 
         return Credit.builder()
-                .creditId(UUID.randomUUID())
                 .amount(creditDto.getAmount())
                 .term(creditDto.getTerm())
                 .monthlyPayment(creditDto.getMonthlyPayment())

@@ -32,7 +32,6 @@ public class StatementServiceImp implements StatementService {
     public Statement createStatement(Client client) {
         Statement statement = Statement.builder()
                 .clientId(client)
-                .statementId(UUID.randomUUID())
                 .creationDate(LocalDate.now())
                 .signDate(LocalDate.now())
                 .statusHistory(createInitialStatusHistory())
@@ -100,7 +99,6 @@ public class StatementServiceImp implements StatementService {
 
     private AppliedOffer convertToAppliedOffer(LoanOfferDto dto) {
         return AppliedOffer.builder()
-                .statementId(UUID.randomUUID())
                 .requestedAmount(dto.getRequestedAmount())
                 .totalAmount(dto.getTotalAmount())
                 .term(dto.getTerm())
