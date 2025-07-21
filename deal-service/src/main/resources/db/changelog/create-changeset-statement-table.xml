@@ -1,0 +1,57 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="create_table_statement" author="levin">
+        <createTable tableName="statement">
+            <column name="statement_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="client_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints nullable="true"/>
+            </column>
+            <column name="credit_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints nullable="true"/>
+            </column>
+            <column name="application_status" type="VARCHAR(50)"/>
+            <column name="creation_date" type="DATE"/>
+            <column name="applied_offer" type="jsonb"/>
+            <column name="sign_date" type="DATE"/>
+            <column name="ses_code" type="VARCHAR(100)"/>
+            <column name="status_history" type="jsonb"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="statement"
+                baseColumnNames="client_id"
+                constraintName="fk_statement_client"
+                referencedTableName="clients"
+                referencedColumnNames="client_id"/>
+
+        <addForeignKeyConstraint
+                baseTableName="statement"
+                baseColumnNames="credit_id"
+                constraintName="fk_statement_credit"
+                referencedTableName="credit"
+                referencedColumnNames="credit_id"/>
+
+        <createIndex indexName="idx_statement_client_id" tableName="statement">
+            <column name="client_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_statement_credit_id" tableName="statement">
+            <column name="credit_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_statement_application_status" tableName="statement">
+            <column name="application_status"/>
+        </createIndex>
+
+        <createIndex indexName="idx_statement_ses_code" tableName="statement">
+            <column name="ses_code"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

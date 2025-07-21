@@ -1,0 +1,29 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="create_table_clients" author="levin">
+        <createTable tableName="clients">
+            <column name="client_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="last_name" type="VARCHAR(100)"/>
+            <column name="first_name" type="VARCHAR(100)"/>
+            <column name="middle_name" type="VARCHAR(100)"/>
+            <column name="birth_date" type="DATE"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="gender" type="VARCHAR(20)"/>
+            <column name="marital_status" type="VARCHAR(20)"/>
+            <column name="dependent_amount" type="INTEGER"/>
+            <column name="passport" type="jsonb"/>
+            <column name="employment" type="jsonb"/>
+            <column name="account_number" type="VARCHAR(50)"/>
+        </createTable>
+        <createIndex indexName="idx_clients_account_number" tableName="clients">
+            <column name="account_number"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
