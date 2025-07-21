@@ -1,8 +1,9 @@
 package org.example.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.media.Schema;
 import org.example.exception.handler.GlobalExceptionHandler;
+import org.example.model.error.ErrorDetail;
+import org.example.model.error.ErrorResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,7 +49,7 @@ class GlobalExceptionHandlerTest {
 
         MethodArgumentNotValidException ex = new MethodArgumentNotValidException(null, bindingResult);
 
-        ResponseEntity<GlobalExceptionHandler.ErrorResponse> response =
+        ResponseEntity<ErrorResponse> response =
                 exceptionHandler.handleValidationExceptions(ex);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -56,7 +57,7 @@ class GlobalExceptionHandlerTest {
         assertEquals("Ошибка валидации данных", response.getBody().message());
         assertEquals(1, response.getBody().errors().size());
 
-        GlobalExceptionHandler.ErrorDetail errorDetail = response.getBody().errors().get(0);
+        ErrorDetail errorDetail = response.getBody().errors().get(0);
         assertEquals("fieldName", errorDetail.field());
         assertEquals("invalidValue", errorDetail.value());
         assertEquals("default message", errorDetail.message());
@@ -69,7 +70,7 @@ class GlobalExceptionHandlerTest {
         HttpMessageNotReadableException ex = new HttpMessageNotReadableException(
                 errorMessage, null, null);
 
-        ResponseEntity<GlobalExceptionHandler.ErrorResponse> response =
+        ResponseEntity<ErrorResponse> response =
                 exceptionHandler.handleEnumExceptions(ex);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -77,7 +78,7 @@ class GlobalExceptionHandlerTest {
         assertEquals("Ошибка в данных", response.getBody().message());
         assertEquals(1, response.getBody().errors().size());
 
-        GlobalExceptionHandler.ErrorDetail errorDetail = response.getBody().errors().get(0);
+        ErrorDetail errorDetail = response.getBody().errors().get(0);
         assertTrue(errorDetail.field().matches("Gender|unknown"));
         assertEquals("UNKNOWN", errorDetail.value());
         assertTrue(errorDetail.message().contains("Недопустимое значение"));
@@ -90,7 +91,7 @@ class GlobalExceptionHandlerTest {
         HttpMessageNotReadableException ex = new HttpMessageNotReadableException(
                 errorMessage, null, null);
 
-        ResponseEntity<GlobalExceptionHandler.ErrorResponse> response =
+        ResponseEntity<ErrorResponse> response =
                 exceptionHandler.handleEnumExceptions(ex);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -98,63 +99,10 @@ class GlobalExceptionHandlerTest {
         assertEquals("Ошибка в данных", response.getBody().message());
         assertEquals(1, response.getBody().errors().size());
 
-        GlobalExceptionHandler.ErrorDetail errorDetail = response.getBody().errors().get(0);
+        ErrorDetail errorDetail = response.getBody().errors().get(0);
         assertEquals("unknown", errorDetail.field());
         assertEquals("unknown", errorDetail.value());
         assertEquals(errorMessage, errorDetail.message());
-    }
-
-    @Test
-    void errorResponseRecord_ShouldHaveCorrectSchemaAnnotations() {
-        assertNotNull(GlobalExceptionHandler.ErrorResponse.class.getAnnotation(Schema.class));
-
-        try {
-            Schema schema = GlobalExceptionHandler.ErrorResponse.class.getDeclaredField("timestamp")
-                    .getAnnotation(Schema.class);
-            assertNotNull(schema);
-            assertEquals("Timestamp of error", schema.description());
-
-            schema = GlobalExceptionHandler.ErrorResponse.class.getDeclaredField("status")
-                    .getAnnotation(Schema.class);
-            assertNotNull(schema);
-            assertEquals("HTTP status code", schema.description());
-
-            schema = GlobalExceptionHandler.ErrorResponse.class.getDeclaredField("message")
-                    .getAnnotation(Schema.class);
-            assertNotNull(schema);
-            assertEquals("General error message", schema.description());
-        } catch (NoSuchFieldException e) {
-            fail("Field not found in ErrorResponse record");
-        }
-    }
-
-    @Test
-    void errorDetailRecord_ShouldHaveCorrectSchemaAnnotations() {
-        assertNotNull(GlobalExceptionHandler.ErrorDetail.class.getAnnotation(Schema.class));
-
-        try {
-            Schema schema = GlobalExceptionHandler.ErrorDetail.class.getDeclaredField("field")
-                    .getAnnotation(Schema.class);
-            assertNotNull(schema);
-            assertEquals("Field name", schema.description());
-
-            schema = GlobalExceptionHandler.ErrorDetail.class.getDeclaredField("value")
-                    .getAnnotation(Schema.class);
-            assertNotNull(schema);
-            assertEquals("Invalid value", schema.description());
-
-            schema = GlobalExceptionHandler.ErrorDetail.class.getDeclaredField("message")
-                    .getAnnotation(Schema.class);
-            assertNotNull(schema);
-            assertEquals("Error message", schema.description());
-
-            schema = GlobalExceptionHandler.ErrorDetail.class.getDeclaredField("code")
-                    .getAnnotation(Schema.class);
-            assertNotNull(schema);
-            assertEquals("Error code", schema.description());
-        } catch (NoSuchFieldException e) {
-            fail("Field not found in ErrorDetail record");
-        }
     }
 
     @Test

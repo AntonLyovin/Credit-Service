@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.example.model.error.ErrorDetail;
+import org.example.model.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -98,33 +100,4 @@ public class GlobalExceptionHandler {
         }
     }
 
-    @Schema(description = "Error response")
-    public record ErrorResponse(
-            @Schema(description = "Timestamp of error", example = "2023-05-15T14:30:45.123")
-            LocalDateTime timestamp,
-
-            @Schema(description = "HTTP status code", example = "400")
-            int status,
-
-            @Schema(description = "General error message", example = "Ошибка валидации данных")
-            String message,
-
-            @Schema(description = "List of error details")
-            List<ErrorDetail> errors
-    ) {}
-
-    @Schema(description = "Error details")
-    public record ErrorDetail(
-            @Schema(description = "Field name", example = "gender")
-            String field,
-
-            @Schema(description = "Invalid value", example = "UNKNOWN")
-            String value,
-
-            @Schema(description = "Error message", example = "Недопустимое значение для поля gender")
-            String message,
-
-            @Schema(description = "Error code", example = "InvalidEnumValue")
-            String code
-    ) {}
 }
