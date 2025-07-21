@@ -7,13 +7,13 @@
 
     <changeSet id="create_table_statement" author="levin">
         <createTable tableName="statement">
-            <column name="statement_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+            <column name="statement_id" type="UUID">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="client_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+            <column name="client_id" type="UUID">
                 <constraints nullable="true"/>
             </column>
-            <column name="credit_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+            <column name="credit_id" type="UUID">
                 <constraints nullable="true"/>
             </column>
             <column name="application_status" type="VARCHAR(50)"/>

@@ -7,7 +7,7 @@
 
     <changeSet id="create_table_credit" author="levin">
         <createTable tableName="credit">
-            <column name="credit_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+            <column name="credit_id" type="UUID">
                 <constraints primaryKey="true"/>
             </column>
             <column name="amount" type="NUMERIC(15,2)"/>

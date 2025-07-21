@@ -7,7 +7,7 @@
 
     <changeSet id="create_table_clients" author="levin">
         <createTable tableName="clients">
-            <column name="client_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+            <column name="client_id" type="UUID">
                 <constraints primaryKey="true"/>
             </column>
             <column name="last_name" type="VARCHAR(100)"/>
