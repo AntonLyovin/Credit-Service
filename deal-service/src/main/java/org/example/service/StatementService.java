@@ -3,6 +3,7 @@ package org.example.service;
 
 
 import org.example.model.StatusHistory;
+import org.example.model.dto.EmailMessage;
 import org.example.model.dto.LoanOfferDto;
 import org.example.model.entity.Client;
 import org.example.model.entity.Credit;
@@ -17,4 +18,5 @@ public interface StatementService {
     Statement getStatementById(UUID statementId);
     void updateStatementWithCredit(Statement statement, Credit credit);
     List<StatusHistory> createInitialStatusHistory();
+    EmailMessage fillEmailMessageForOfferSelect(LoanOfferDto loanOfferDto);
 }

@@ -1,0 +1,29 @@
+spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: emailMessage:org.example.dto.EmailMessage
+    topics:
+      - name: finish-registration
+      - name: create-documents
+      - name: send-documents
+      - name: send-ses
+      - name: credit-issued
+      - name: statement-denied
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: testmailapp2025@gmail.com
+    password: rxea lnvj gcgq ckgd
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+server:
+  port: 8000

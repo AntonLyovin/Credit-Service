@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.model.dto.FinishRegistrationRequestDto;
 import org.example.model.dto.LoanOfferDto;
 import org.example.model.dto.LoanStatementRequestDto;
+import org.example.service.KafkaProducer;
 import org.example.service.LoanProcessingFacade;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import java.util.UUID;
 
 public class DealController {
     private final LoanProcessingFacade loanProcessingFacade;
+    private final KafkaProducer kafkaProducer;
 
     @PostMapping("/statement")
     @Operation(
@@ -65,4 +67,7 @@ public class DealController {
         loanProcessingFacade.processCreditCalculation(requestDto, statementId);
         return ResponseEntity.ok().build();
     }
+
+
+
 }

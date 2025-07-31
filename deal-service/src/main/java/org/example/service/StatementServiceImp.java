@@ -1,31 +1,32 @@
 package org.example.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.model.AppliedOffer;
 import org.example.model.StatusHistory;
+import org.example.model.dto.EmailMessage;
 import org.example.model.dto.LoanOfferDto;
 import org.example.model.entity.Client;
 import org.example.model.entity.Credit;
 import org.example.model.entity.Statement;
 import org.example.model.enumerated.ApplicationStatus;
 import org.example.model.enumerated.ChangeType;
+import org.example.model.enumerated.Theme;
 import org.example.repository.StatementRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class StatementServiceImp implements StatementService {
     private final StatementRepository statementRepository;
-
-    public StatementServiceImp(StatementRepository statementRepository) {
-        this.statementRepository = statementRepository;
-    }
 
     @Override
     @Transactional
@@ -39,6 +40,44 @@ public class StatementServiceImp implements StatementService {
 
         return statementRepository.save(statement);
     }
+
+    @Transactional
+    public EmailMessage fillEmailMessageForOfferSelect(LoanOfferDto loanOfferDto){
+        Optional<Client> clientFind = statementRepository.findById(loanOfferDto.getStatementId())
+                .map(i -> i.getClientId());
+        if (clientFind.isEmpty()){
+            throw new RuntimeException("Клиент не найден по statementId");
+        }
+        Client client = clientFind.get();
+        Optional<Statement> statementFind = statementRepository.findById(loanOfferDto.getStatementId());
+                Statement statement = statementFind.get();
+        EmailMessage message = EmailMessage.builder()
+                .firstName(client.getFirstName())
+                .middleName(client.getMiddleName())
+                .lastName(client.getLastName())
+                .address(client.getEmail())
+                .theme(Theme.FINISH_REGISTRATION)
+                .statementId(loanOfferDto.getStatementId().toString())
+                .appliedOffer(statement.getAppliedOffer())
+                .text("Перейдите к следующему шагу")
+                .build();
+        return message;
+    }
+
+//    @Transactional
+//    public EmailMessage fillEmailMessageForFinishRegistration(FinishRegistrationRequestDto requestDto, UUID statementId ){
+//        String address = statementRepository.findById(statementId)
+//                .map(i -> i.getClientId())
+//                .map(i -> i.getEmail())
+//                .orElse(null);
+//        EmailMessage message = EmailMessage.builder()
+//                .address(address)
+//                .theme(Theme.FINISH_REGISTRATION)
+//                .statementId(statementId.toString())
+//                .text("Начался финальный процесс регистрации")
+//                .build();
+//        return message;
+//    }
 
     @Override
     @Transactional
@@ -108,5 +147,6 @@ public class StatementServiceImp implements StatementService {
                 .isSalaryClient(dto.getIsSalaryClient())
                 .build();
     }
+
 
 }

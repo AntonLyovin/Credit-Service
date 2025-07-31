@@ -1,5 +1,6 @@
 package org.example.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.ScoringServiceProperties;
 import org.example.model.PaymentSchedule;
@@ -22,18 +23,11 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class CreditServiceImp implements CreditService {
     private final CreditRepository creditRepository;
     private final RestTemplate restTemplate;
     private final ScoringServiceProperties properties;
-
-    public CreditServiceImp(CreditRepository creditRepository,
-                             RestTemplate restTemplate,
-                             ScoringServiceProperties properties) {
-        this.creditRepository = creditRepository;
-        this.restTemplate = restTemplate;
-        this.properties = properties;
-    }
 
     @Override
     @Transactional
