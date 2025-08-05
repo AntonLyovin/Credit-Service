@@ -28,4 +28,5 @@ public class EmailMessage {
     AppliedOffer appliedOffer;
     Credit credit;
     String text;
+    String sesCode;
 }

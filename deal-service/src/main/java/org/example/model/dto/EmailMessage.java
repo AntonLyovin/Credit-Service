@@ -4,7 +4,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.example.model.AppliedOffer;
 import org.example.model.Passport;
-import org.example.model.entity.Credit;
 import org.example.model.enumerated.Theme;
 
 import java.time.LocalDate;
@@ -26,6 +25,7 @@ public class EmailMessage {
     Theme theme;
     String statementId;
     AppliedOffer appliedOffer;
-    Credit credit;
+    CreditDto credit;
+    String sesCode;
     String text;
 }

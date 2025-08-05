@@ -52,6 +52,7 @@ public class LoanProcessingFacade {
         ScoringDataDto scoringData = buildScoringData(requestDto, statement);
         Credit credit = creditService.createCredit(scoringData, statement);
         statementService.updateStatementWithCredit(statement, credit);
+        kafkaProducer.sendMessage(statementService.fillEmailMessageForFinishRegistration(requestDto,statementId),statementService.fillEmailMessageForFinishRegistration(requestDto, statementId).getTheme());
     }
 
     ScoringDataDto buildScoringData(FinishRegistrationRequestDto requestDto, Statement statement) {
@@ -74,5 +75,29 @@ public class LoanProcessingFacade {
                 .isInsuranceEnabled(requestDto.getIsInsuranceEnabled())
                 .isSalaryClient(requestDto.getIsSalaryClient())
                 .build();
+    }
+
+    @Transactional
+    public void processSendDocuments(UUID statementId){
+        Statement statement = statementService.getStatementById(statementId);
+        statementService.fillEmailMessageForPrepareDocuments(statementId);
+        statementService.updateStatementWithDocuments(statement);
+        kafkaProducer.sendMessage(statementService.fillEmailMessageForPrepareDocuments(statementId),statementService.fillEmailMessageForPrepareDocuments(statementId).getTheme());
+    }
+    @Transactional
+    public void processSignDocuments(UUID statementId){
+        Statement statement = statementService.getStatementById(statementId);
+        statementService.updateStatementSignDocuments(statement);
+        statementService.fillEmailMessageForSignDocuments(statementId);
+        kafkaProducer.sendMessage(statementService.fillEmailMessageForSignDocuments(statementId),statementService.fillEmailMessageForSignDocuments(statementId).getTheme());
+
+    }
+    @Transactional
+    public void processVerifySesCode(UUID statementId,String sesCode){
+        Statement statement = statementService.getStatementById(statementId);
+        statementService.fillEmailMessageForVerifySesCode(statementId,sesCode);
+        statementService.updateStatementWithSesCode(statement);
+        kafkaProducer.sendMessage(statementService.fillEmailMessageForVerifySesCode(statementId,sesCode),statementService.fillEmailMessageForVerifySesCode(statementId,sesCode).getTheme());
+
     }
 }

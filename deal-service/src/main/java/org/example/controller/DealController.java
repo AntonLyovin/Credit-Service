@@ -68,6 +68,49 @@ public class DealController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/document/{statementId}/send")
+    @Operation(
+            summary = "запрос на отправку документов",
+            description = "Отправляет документы для ранее принятого предложения"
+    )
+    public ResponseEntity<Void> sendDocument(
+            @PathVariable UUID statementId)
+            throws ServiceUnavailableException {
+
+        log.info("Начало отправки документов. statementId: {} ",
+                statementId);
+        loanProcessingFacade.processSendDocuments(statementId);
+        return ResponseEntity.ok().build();
+    }
+    @PostMapping("/document/{statementId}/sign")
+    @Operation(
+            summary = "Запрос на подписание документов",
+            description = "Генерирует SES code для выбранных документов"
+    )
+    public ResponseEntity<Void> signDocument(
+            @PathVariable UUID statementId)
+            throws ServiceUnavailableException {
+
+        log.info("Начало подписания документов. statementId: {} ",
+                statementId);
+        loanProcessingFacade.processSignDocuments(statementId);
+        return ResponseEntity.ok().build();
+    }
+    @PostMapping("/document/{statementId}/code")
+    @Operation(
+            summary = "Отправка кода на подписание документов",
+            description = "Отправляет сгенерированный SES code для выбранных документов"
+    )
+    public ResponseEntity<Void> verifySesCode(
+            @PathVariable UUID statementId,
+            @RequestBody @Valid String sesCode) throws ServiceUnavailableException {
+
+        log.info("Начало верификации Ses code. statementId: {} ",
+                statementId);
+        loanProcessingFacade.processVerifySesCode(statementId,sesCode);
+        return ResponseEntity.ok().build();
+    }
+
 
 
 }

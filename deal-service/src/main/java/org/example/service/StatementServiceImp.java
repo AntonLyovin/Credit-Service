@@ -5,8 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.model.AppliedOffer;
 import org.example.model.StatusHistory;
-import org.example.model.dto.EmailMessage;
-import org.example.model.dto.LoanOfferDto;
+import org.example.model.dto.*;
 import org.example.model.entity.Client;
 import org.example.model.entity.Credit;
 import org.example.model.entity.Statement;
@@ -18,9 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -42,15 +43,15 @@ public class StatementServiceImp implements StatementService {
     }
 
     @Transactional
-    public EmailMessage fillEmailMessageForOfferSelect(LoanOfferDto loanOfferDto){
+    public EmailMessage fillEmailMessageForOfferSelect(LoanOfferDto loanOfferDto) {
         Optional<Client> clientFind = statementRepository.findById(loanOfferDto.getStatementId())
                 .map(i -> i.getClientId());
-        if (clientFind.isEmpty()){
+        if (clientFind.isEmpty()) {
             throw new RuntimeException("Клиент не найден по statementId");
         }
         Client client = clientFind.get();
         Optional<Statement> statementFind = statementRepository.findById(loanOfferDto.getStatementId());
-                Statement statement = statementFind.get();
+        Statement statement = statementFind.get();
         EmailMessage message = EmailMessage.builder()
                 .firstName(client.getFirstName())
                 .middleName(client.getMiddleName())
@@ -59,25 +60,139 @@ public class StatementServiceImp implements StatementService {
                 .theme(Theme.FINISH_REGISTRATION)
                 .statementId(loanOfferDto.getStatementId().toString())
                 .appliedOffer(statement.getAppliedOffer())
-                .text("Перейдите к следующему шагу")
+                .text("Выбрано одно из предложений")
                 .build();
         return message;
     }
 
-//    @Transactional
-//    public EmailMessage fillEmailMessageForFinishRegistration(FinishRegistrationRequestDto requestDto, UUID statementId ){
-//        String address = statementRepository.findById(statementId)
-//                .map(i -> i.getClientId())
-//                .map(i -> i.getEmail())
-//                .orElse(null);
-//        EmailMessage message = EmailMessage.builder()
-//                .address(address)
-//                .theme(Theme.FINISH_REGISTRATION)
-//                .statementId(statementId.toString())
-//                .text("Начался финальный процесс регистрации")
-//                .build();
-//        return message;
-//    }
+    @Transactional
+    public EmailMessage fillEmailMessageForFinishRegistration(FinishRegistrationRequestDto requestDto, UUID statementId) {
+        Optional<Client> clientFind = statementRepository.findById(statementId)
+                .map(i -> i.getClientId());
+        if (clientFind.isEmpty()) {
+            throw new RuntimeException("Клиент не найден по statementId");
+        }
+        Client client = clientFind.get();
+        String address = statementRepository.findById(statementId)
+                .map(i -> i.getClientId())
+                .map(i -> i.getEmail())
+                .orElse(null);
+        EmailMessage message = EmailMessage.builder()
+                .firstName(client.getFirstName())
+                .middleName(client.getMiddleName())
+                .lastName(client.getLastName())
+                .address(address)
+                .theme(Theme.CREATE_DOCUMENTS)
+                .statementId(statementId.toString())
+                .text("На основе выбранного предложения сформирован кредит.\n\nПерейдите к следующему шагу чтобы получить документы.")
+                .build();
+        return message;
+    }
+
+    @Transactional
+    public EmailMessage fillEmailMessageForPrepareDocuments(UUID statementId) {
+        Statement statement = statementRepository.findById(statementId)
+                .orElseThrow(() -> new RuntimeException("Заявка не найдена по statementId: " + statementId));
+
+        Client client = statement.getClientId();
+        if (client == null) {
+            throw new RuntimeException("Клиент не найден для заявки: " + statementId);
+        }
+
+        String address = Optional.ofNullable(client.getEmail())
+                .orElseThrow(() -> new RuntimeException("Email клиента не найден"));
+
+        Credit credit = statement.getCreditId();
+        if (credit == null) {
+            throw new RuntimeException("Кредит не найден для заявки: " + statementId);
+        }
+
+        List<PaymentScheduleElementDto> scheduleDtos = credit.getPaymentSchedule() != null
+                ? credit.getPaymentSchedule().stream()
+                .map(ps -> PaymentScheduleElementDto.builder()
+                        .number(ps.getNumber())
+                        .date(ps.getDate())
+                        .totalPayment(ps.getTotalPayment())
+                        .interestPayment(ps.getInterestPayment())
+                        .debtPayment(ps.getDebtPayment())
+                        .remainingDebt(ps.getRemainingDebt())
+                        .build()
+                ).collect(Collectors.toList())
+                : Collections.emptyList();
+
+        CreditDto creditDto = CreditDto.builder()
+                .amount(credit.getAmount())
+                .term(credit.getTerm())
+                .monthlyPayment(credit.getMonthlyPayment())
+                .rate(credit.getRate())
+                .psk(credit.getPsk())
+                .paymentSchedule(scheduleDtos)  // используем подготовленный список
+                .build();
+        EmailMessage message = EmailMessage.builder()
+                .firstName(client.getFirstName())
+                .middleName(client.getMiddleName())
+                .lastName(client.getLastName())
+                .address(address)
+                .theme(Theme.SEND_DOCUMENTS)
+                .statementId(statementId.toString())
+                .credit(creditDto)
+                .text("Выбранные условия кредита")
+                .build();
+        return message;
+    }
+
+    @Transactional
+    public EmailMessage fillEmailMessageForSignDocuments(UUID statementId) {
+        Statement statement = statementRepository.findById(statementId)
+                .orElseThrow(() -> new RuntimeException("Заявка не найдена по statementId: " + statementId));
+        Client client = statement.getClientId();
+        if (client == null) {
+            throw new RuntimeException("Клиент не найден для заявки: " + statementId);
+        }
+
+        String address = Optional.ofNullable(client.getEmail())
+                .orElseThrow(() -> new RuntimeException("Email клиента не найден"));
+
+        EmailMessage message = EmailMessage.builder()
+                .firstName(client.getFirstName())
+                .middleName(client.getMiddleName())
+                .lastName(client.getLastName())
+                .address(address)
+                .theme(Theme.SEND_SES)
+                .statementId(statementId.toString())
+                .text("Ваш код для подписания документов:")
+                .sesCode(statement.getSesCode())
+                .build();
+        return message;
+    }
+
+    @Transactional
+    public EmailMessage fillEmailMessageForVerifySesCode(UUID statementId, String sesCode) {
+        Statement statement = statementRepository.findById(statementId)
+                .orElseThrow(() -> new RuntimeException("Заявка не найдена по statementId: " + statementId));
+        Client client = statement.getClientId();
+        if (client == null) {
+            throw new RuntimeException("Клиент не найден для заявки: " + statementId);
+        }
+        String address = Optional.ofNullable(client.getEmail())
+                .orElseThrow(() -> new RuntimeException("Email клиента не найден"));
+
+        String systemCode = statement.getSesCode();
+
+        if (!sesCode.equals(systemCode)) {
+            throw new RuntimeException("Неверный SES-код");
+        }
+
+        return EmailMessage.builder()
+                .firstName(client.getFirstName())
+                .middleName(client.getMiddleName())
+                .lastName(client.getLastName())
+                .address(address)
+                .theme(Theme.CREDIT_ISSUED)
+                .statementId(statementId.toString())
+                .text("Ваш код принят")
+                .build();
+    }
 
     @Override
     @Transactional
@@ -146,6 +261,24 @@ public class StatementServiceImp implements StatementService {
                 .isInsuranceEnabled(dto.getIsInsuranceEnabled())
                 .isSalaryClient(dto.getIsSalaryClient())
                 .build();
+    }
+
+    @Transactional
+    public void updateStatementWithDocuments(Statement statement) {
+        statement.setStatus(ApplicationStatus.PREPARE_DOCUMENTS);
+        statementRepository.save(statement);
+    }
+
+    @Transactional
+    public void updateStatementSignDocuments(Statement statement) {
+        statement.setSesCode(UUID.randomUUID().toString());
+        statementRepository.save(statement);
+    }
+
+    @Transactional
+    public void updateStatementWithSesCode(Statement statement) {
+        statement.setStatus(ApplicationStatus.DOCUMENT_SIGNED);
+        statementRepository.save(statement);
     }
 
 
