@@ -43,10 +43,12 @@ public class KafkaConsumer {
     public void processSendDocuments(String message) {
         processMessage(message, "send");
     }
+
     @KafkaListener(topics = "send-ses", groupId = "my_consumer")
     public void processSendSes(String message) {
         processMessage(message, "ses");
     }
+
     @KafkaListener(topics = "credit-issued", groupId = "my_consumer")
     public void processVerifySes(String message) {
         processMessage(message, "issued");
@@ -138,7 +140,7 @@ public class KafkaConsumer {
                 } else if ("ses".equals(messageType) && message.getSesCode() != null) {
                     String sesCode = "Код: " + message.getSesCode() + "\n";
                     addTextWithWrapping(contentStream, font, fontSize, width, sesCode);
-                }else if ("issued".equals(messageType)) {
+                } else if ("issued".equals(messageType)) {
                     String issuedCredit = "Процесс выдачи кредита окончен" + "\n";
                     addTextWithWrapping(contentStream, font, fontSize, width, issuedCredit);
                 }

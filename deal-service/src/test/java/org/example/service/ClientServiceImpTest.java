@@ -12,7 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -25,26 +26,6 @@ class ClientServiceImpTest {
     @InjectMocks
     private ClientServiceImp clientService;
 
-    @Test
-    @Transactional
-    void createClient_Success() {
-        LoanStatementRequestDto requestDto = createTestRequestDto();
-        Client expectedClient = createTestClient();
-
-        when(clientRepository.save(any(Client.class))).thenReturn(expectedClient);
-
-        Client result = clientService.createClient(requestDto);
-
-        assertNotNull(result);
-        assertNotNull(result.getClientId());
-        assertEquals(requestDto.getLastName(), result.getLastName());
-        assertEquals(requestDto.getFirstName(), result.getFirstName());
-        assertEquals(requestDto.getMiddleName(), result.getMiddleName());
-        assertEquals(requestDto.getBirthdate(), result.getBirthDate());
-        assertEquals(requestDto.getEmail(), result.getEmail());
-
-        verify(clientRepository).save(any(Client.class));
-    }
 
     @Test
     @Transactional

@@ -25,6 +25,7 @@ public class KafkaConfiguration {
     public NewTopic createDocumentsTopic() {
         return TopicBuilder.name("create-documents").partitions(1).replicas(1).build();
     }
+
     @Bean
     public NewTopic sendDocumentsTopic() {
         return TopicBuilder.name("send-documents").partitions(1).replicas(1).build();
@@ -34,6 +35,7 @@ public class KafkaConfiguration {
     public NewTopic sendSesTopic() {
         return TopicBuilder.name("send-ses").partitions(1).replicas(1).build();
     }
+
     @Bean
     public NewTopic creditIssuedTopic() {
         return TopicBuilder.name("credit-issued").partitions(1).replicas(1).build();
@@ -49,7 +51,7 @@ public class KafkaConfiguration {
         Map<String, Object> configs = new HashMap<>();
         configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.springframework.kafka.support.serializer.JsonSerializer"); // Используем StringSerializer
+        configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.springframework.kafka.support.serializer.JsonSerializer");
         return new DefaultKafkaProducerFactory<>(configs);
     }
 

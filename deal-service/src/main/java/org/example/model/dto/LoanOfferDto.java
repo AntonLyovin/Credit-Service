@@ -12,13 +12,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class LoanOfferDto {
-     UUID statementId;
-     BigDecimal requestedAmount;
-     BigDecimal totalAmount;
-     Integer term;
-     BigDecimal monthlyPayment;
-     BigDecimal rate;
-     Boolean isInsuranceEnabled;
-     Boolean isSalaryClient;
+    UUID statementId;
+    BigDecimal requestedAmount;
+    BigDecimal totalAmount;
+    Integer term;
+    BigDecimal monthlyPayment;
+    BigDecimal rate;
+    Boolean isInsuranceEnabled;
+    Boolean isSalaryClient;
 
 }

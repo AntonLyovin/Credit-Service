@@ -15,21 +15,6 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.xml
     default-schema: public
 
-  kafka:
-    bootstrap-servers: localhost:9092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      properties:
-        spring.json.type.mapping: emailMessage:org.example.dto.EmailMessage
-    topics:
-      - name: finish-registration
-      - name: create-documents
-      - name: send-documents
-      - name: send-ses
-      - name: credit-issued
-      - name: statement-denied
-
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

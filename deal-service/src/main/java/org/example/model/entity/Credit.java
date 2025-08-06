@@ -16,8 +16,7 @@ import java.util.UUID;
 @Table(name = "credit")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Credit {

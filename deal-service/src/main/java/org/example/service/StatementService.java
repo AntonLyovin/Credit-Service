@@ -1,7 +1,6 @@
 package org.example.service;
 
 
-
 import org.example.model.StatusHistory;
 import org.example.model.dto.EmailMessage;
 import org.example.model.dto.FinishRegistrationRequestDto;
@@ -15,16 +14,28 @@ import java.util.UUID;
 
 public interface StatementService {
     Statement createStatement(Client client);
+
     void applyOfferToStatement(UUID statementId, LoanOfferDto offerDto);
+
     Statement getStatementById(UUID statementId);
+
     void updateStatementWithCredit(Statement statement, Credit credit);
+
     List<StatusHistory> createInitialStatusHistory();
+
     EmailMessage fillEmailMessageForOfferSelect(LoanOfferDto loanOfferDto);
-    EmailMessage fillEmailMessageForFinishRegistration(FinishRegistrationRequestDto requestDto, UUID statementId );
-    EmailMessage fillEmailMessageForPrepareDocuments(UUID statementId );
+
+    EmailMessage fillEmailMessageForFinishRegistration(FinishRegistrationRequestDto requestDto, UUID statementId);
+
+    EmailMessage fillEmailMessageForPrepareDocuments(UUID statementId);
+
     void updateStatementWithDocuments(Statement statement);
+
     void updateStatementSignDocuments(Statement statement);
-    EmailMessage fillEmailMessageForSignDocuments(UUID statementId );
+
+    EmailMessage fillEmailMessageForSignDocuments(UUID statementId);
+
     void updateStatementWithSesCode(Statement statement);
+
     EmailMessage fillEmailMessageForVerifySesCode(UUID statementId, String sesCode);
 }

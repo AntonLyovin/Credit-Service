@@ -12,8 +12,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter
-@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EmailMessage {
     String lastName;

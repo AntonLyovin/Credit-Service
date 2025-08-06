@@ -10,8 +10,7 @@ import java.util.UUID;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Credit {

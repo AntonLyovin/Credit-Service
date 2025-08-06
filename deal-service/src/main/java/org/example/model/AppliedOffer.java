@@ -8,8 +8,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 @NoArgsConstructor

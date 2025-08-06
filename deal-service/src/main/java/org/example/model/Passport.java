@@ -2,8 +2,7 @@ package org.example.model;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
@@ -11,8 +10,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Passport implements Serializable {
 

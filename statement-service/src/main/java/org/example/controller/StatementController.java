@@ -37,6 +37,7 @@ public class StatementController {
         log.info("Начало расчета кредита. Тело запроса: {}", requestDto);
         return statementService.calculateOffers(requestDto);
     }
+
     @PostMapping("/offer")
     @Operation(
             summary = "Выбор предложения",

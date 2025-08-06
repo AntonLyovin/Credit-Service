@@ -24,13 +24,13 @@ spring:
     password: rxea lnvj gcgq ckgd
     default-encoding: UTF-8
     properties:
-        mail:
-          smtp:
-            auth: true
-            starttls:
-              enable: true
-          mime:
-            charset: UTF-8
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+        mime:
+          charset: UTF-8
 
 server:
   port: 8000

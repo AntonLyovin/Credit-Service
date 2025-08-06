@@ -69,7 +69,8 @@ public class KafkaConsumerTest {
         String invalidJson = "invalid json";
 
         when(objectMapper.readValue(invalidJson, EmailMessage.class))
-                .thenThrow(new JsonProcessingException("Invalid JSON") {});
+                .thenThrow(new JsonProcessingException("Invalid JSON") {
+                });
 
         kafkaConsumer.processFinishRegistration(invalidJson);
 
