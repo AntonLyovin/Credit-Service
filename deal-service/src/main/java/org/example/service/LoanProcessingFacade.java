@@ -1,5 +1,6 @@
 package org.example.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.model.dto.FinishRegistrationRequestDto;
 import org.example.model.dto.LoanOfferDto;
@@ -18,21 +19,13 @@ import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class LoanProcessingFacade {
     private final ClientService clientService;
     private final StatementService statementService;
     private final OfferCalculationService offerService;
     private final CreditService creditService;
-
-    public LoanProcessingFacade(ClientService clientService,
-                                StatementService statementService,
-                                OfferCalculationService offerService,
-                                CreditService creditService) {
-        this.clientService = clientService;
-        this.statementService = statementService;
-        this.offerService = offerService;
-        this.creditService = creditService;
-    }
+    private final KafkaProducer kafkaProducer;
 
     @Transactional
     public List<LoanOfferDto> processLoanApplication(LoanStatementRequestDto requestDto) throws ServiceUnavailableException {
@@ -49,6 +42,8 @@ public class LoanProcessingFacade {
     @Transactional
     public void processOfferSelection(LoanOfferDto offerDto) {
         statementService.applyOfferToStatement(offerDto.getStatementId(), offerDto);
+        kafkaProducer.sendMessage(statementService.fillEmailMessageForOfferSelect(offerDto), statementService.fillEmailMessageForOfferSelect(offerDto).getTheme());
+
     }
 
     @Transactional
@@ -57,6 +52,7 @@ public class LoanProcessingFacade {
         ScoringDataDto scoringData = buildScoringData(requestDto, statement);
         Credit credit = creditService.createCredit(scoringData, statement);
         statementService.updateStatementWithCredit(statement, credit);
+        kafkaProducer.sendMessage(statementService.fillEmailMessageForFinishRegistration(requestDto, statementId), statementService.fillEmailMessageForFinishRegistration(requestDto, statementId).getTheme());
     }
 
     ScoringDataDto buildScoringData(FinishRegistrationRequestDto requestDto, Statement statement) {
@@ -79,5 +75,31 @@ public class LoanProcessingFacade {
                 .isInsuranceEnabled(requestDto.getIsInsuranceEnabled())
                 .isSalaryClient(requestDto.getIsSalaryClient())
                 .build();
+    }
+
+    @Transactional
+    public void processSendDocuments(UUID statementId) {
+        Statement statement = statementService.getStatementById(statementId);
+        statementService.fillEmailMessageForPrepareDocuments(statementId);
+        statementService.updateStatementWithDocuments(statement);
+        kafkaProducer.sendMessage(statementService.fillEmailMessageForPrepareDocuments(statementId), statementService.fillEmailMessageForPrepareDocuments(statementId).getTheme());
+    }
+
+    @Transactional
+    public void processSignDocuments(UUID statementId) {
+        Statement statement = statementService.getStatementById(statementId);
+        statementService.updateStatementSignDocuments(statement);
+        statementService.fillEmailMessageForSignDocuments(statementId);
+        kafkaProducer.sendMessage(statementService.fillEmailMessageForSignDocuments(statementId), statementService.fillEmailMessageForSignDocuments(statementId).getTheme());
+
+    }
+
+    @Transactional
+    public void processVerifySesCode(UUID statementId, String sesCode) {
+        Statement statement = statementService.getStatementById(statementId);
+        statementService.fillEmailMessageForVerifySesCode(statementId, sesCode);
+        statementService.updateStatementWithSesCode(statement);
+        kafkaProducer.sendMessage(statementService.fillEmailMessageForVerifySesCode(statementId, sesCode), statementService.fillEmailMessageForVerifySesCode(statementId, sesCode).getTheme());
+
     }
 }

@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"passportSeries","passportNumber"})
+@ToString(exclude = {"passportSeries", "passportNumber"})
 public class LoanStatementRequestDto {
     @Schema(description = "Сумма кредита", defaultValue = "200000")
     @NotNull(message = "Сумма обязательна для заполнения")
@@ -34,7 +34,7 @@ public class LoanStatementRequestDto {
     @Pattern(regexp = "^[A-Za-z]{2,30}$", message = "Отчество должно содержать только латинские буквы")
     private String middleName;
     @Schema(description = "Email адрес", defaultValue = "Ivanov@mail.ru")
-    @Pattern(regexp = "^[a-z0-9A-Z_!#$%&'*+/=?`{|}~^.-]+@[a-z0-9A-Z.-]+$", message="Неправильный формат Email")
+    @Pattern(regexp = "^[a-z0-9A-Z_!#$%&'*+/=?`{|}~^.-]+@[a-z0-9A-Z.-]+$", message = "Неправильный формат Email")
     private String email;
     @Schema(description = "Дата рождения (гггг-мм-дд)",
             defaultValue = "1990-01-01",
@@ -42,11 +42,11 @@ public class LoanStatementRequestDto {
             type = "string",
             format = "date")
     private LocalDate birthdate;
-    @Schema(description="Серия паспорта - 4 цифры", defaultValue = "4444")
-    @Pattern(regexp="^\\d{4}$", message="Серия паспорта должна состоять из 4 цифр")
+    @Schema(description = "Серия паспорта - 4 цифры", defaultValue = "4444")
+    @Pattern(regexp = "^\\d{4}$", message = "Серия паспорта должна состоять из 4 цифр")
     private String passportSeries;
-    @Schema(description="Номер паспорта - 6 цифр", defaultValue = "666666")
-    @Pattern(regexp="^\\d{6}$", message="Номер паспорта должен состоять из 6 цифр")
+    @Schema(description = "Номер паспорта - 6 цифр", defaultValue = "666666")
+    @Pattern(regexp = "^\\d{6}$", message = "Номер паспорта должен состоять из 6 цифр")
     private String passportNumber;
 }
 

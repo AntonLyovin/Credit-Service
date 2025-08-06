@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
-public class ClientServiceImp implements ClientService{
+public class ClientServiceImp implements ClientService {
     private final ClientRepository clientRepository;
 
     public ClientServiceImp(ClientRepository clientRepository) {

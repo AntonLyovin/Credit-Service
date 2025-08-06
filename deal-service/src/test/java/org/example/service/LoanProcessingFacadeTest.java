@@ -15,7 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import javax.naming.ServiceUnavailableException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,8 +36,21 @@ class LoanProcessingFacadeTest {
     @Mock
     private CreditService creditService;
 
+    @Mock
+    private KafkaProducer kafkaProducer;
+
     @InjectMocks
     private LoanProcessingFacade loanProcessingFacade;
+
+    private EmailMessage createTestEmailMessage() {
+        return EmailMessage.builder()
+                .theme(Theme.CREATE_DOCUMENTS)
+                .address("test@example.com")
+                .firstName("John")
+                .lastName("Doe")
+                .text("Your credit has been approved")
+                .build();
+    }
 
 
     @Test
@@ -60,10 +72,17 @@ class LoanProcessingFacadeTest {
     void processOfferSelection_Success() {
         LoanOfferDto offerDto = createTestOffer(BigDecimal.valueOf(8.5));
         offerDto.setStatementId(UUID.randomUUID());
+        EmailMessage emailMessage = createTestEmailMessage();
+
+        when(statementService.fillEmailMessageForOfferSelect(offerDto))
+                .thenReturn(emailMessage);
 
         loanProcessingFacade.processOfferSelection(offerDto);
 
         verify(statementService).applyOfferToStatement(offerDto.getStatementId(), offerDto);
+        verify(kafkaProducer).sendMessage(emailMessage, emailMessage.getTheme());
+
+
     }
 
     @Test
@@ -72,16 +91,20 @@ class LoanProcessingFacadeTest {
         FinishRegistrationRequestDto requestDto = createFinishRegistrationRequest();
         Statement testStatement = createTestStatementWithOffer();
         Credit testCredit = createTestCredit();
+        EmailMessage emailMessage = createTestEmailMessage();
 
         when(statementService.getStatementById(statementId)).thenReturn(testStatement);
         when(creditService.createCredit(any(ScoringDataDto.class), any(Statement.class)))
                 .thenReturn(testCredit);
+        when(statementService.fillEmailMessageForFinishRegistration(requestDto, statementId))
+                .thenReturn(emailMessage);
 
         loanProcessingFacade.processCreditCalculation(requestDto, statementId);
 
         verify(statementService).getStatementById(statementId);
         verify(creditService).createCredit(any(ScoringDataDto.class), eq(testStatement));
         verify(statementService).updateStatementWithCredit(testStatement, testCredit);
+        verify(kafkaProducer).sendMessage(emailMessage, emailMessage.getTheme());
     }
 
     @Test

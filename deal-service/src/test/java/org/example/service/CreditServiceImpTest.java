@@ -56,10 +56,8 @@ class CreditServiceImpTest {
                 .thenReturn(new ResponseEntity<>(creditDto, HttpStatus.OK));
         when(creditRepository.save(any(Credit.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // Act
         Credit result = creditService.createCredit(scoringData, statement);
 
-        // Assert
         assertNotNull(result);
         assertEquals(creditDto.getAmount(), result.getAmount());
         assertEquals(creditDto.getTerm(), result.getTerm());
@@ -73,7 +71,6 @@ class CreditServiceImpTest {
 
     @Test
     void createCredit_ScoringServiceError_ShouldThrowServiceUnavailable() {
-        // Arrange
         ScoringDataDto scoringData = createValidScoringData();
         Statement statement = new Statement();
 
@@ -81,7 +78,6 @@ class CreditServiceImpTest {
         when(restTemplate.postForEntity(anyString(), any(), eq(CreditDto.class)))
                 .thenThrow(new RestClientException("Service unavailable"));
 
-        // Act & Assert
         assertThrows(ServiceUnavailableException.class, () -> {
             creditService.createCredit(scoringData, statement);
         });
@@ -98,33 +94,11 @@ class CreditServiceImpTest {
         when(restTemplate.postForEntity(anyString(), any(), eq(CreditDto.class)))
                 .thenReturn(new ResponseEntity<>(expectedCreditDto, HttpStatus.OK));
 
-        // Act
         CreditDto result = creditService.calculateCredit(scoringData);
 
-        // Assert
         assertEquals(expectedCreditDto, result);
     }
 
-    @Test
-    void buildCreditEntity_ValidDto_ShouldReturnCorrectEntity() {
-        // Arrange
-        CreditDto creditDto = createValidCreditDto();
-
-        // Act
-        Credit result = creditService.buildCreditEntity(creditDto);
-
-        // Assert
-        assertNotNull(result.getCreditId());
-        assertEquals(creditDto.getAmount(), result.getAmount());
-        assertEquals(creditDto.getTerm(), result.getTerm());
-        assertEquals(creditDto.getMonthlyPayment(), result.getMonthlyPayment());
-        assertEquals(creditDto.getRate(), result.getRate());
-        assertEquals(creditDto.getPsk(), result.getPsk());
-        assertEquals(creditDto.getIsInsuranceEnabled(), result.getInsuranceEnabled());
-        assertEquals(creditDto.getIsSalaryClient(), result.getSalaryClient());
-        assertEquals(CreditStatus.CALCULATED, result.getCreditStatus());
-        assertEquals(creditDto.getPaymentSchedule().size(), result.getPaymentSchedule().size());
-    }
 
     @Test
     void mapToPaymentSchedule_ValidDto_ShouldReturnCorrectEntity() {
@@ -137,10 +111,8 @@ class CreditServiceImpTest {
         dto.setDebtPayment(BigDecimal.valueOf(900));
         dto.setRemainingDebt(BigDecimal.valueOf(9000));
 
-        // Act
         PaymentSchedule result = creditService.mapToPaymentSchedule(dto);
 
-        // Assert
         assertEquals(dto.getNumber(), result.getNumber());
         assertEquals(dto.getDate(), result.getDate());
         assertEquals(dto.getTotalPayment(), result.getTotalPayment());

@@ -13,13 +13,13 @@ import java.util.UUID;
 @Getter
 @Setter
 public class LoanOfferDto {
-     UUID statementId;
-     BigDecimal requestedAmount;
-     BigDecimal totalAmount;
-     Integer term;
-     BigDecimal monthlyPayment;
-     BigDecimal rate;
-     Boolean isInsuranceEnabled;
-     Boolean isSalaryClient;
+    UUID statementId;
+    BigDecimal requestedAmount;
+    BigDecimal totalAmount;
+    Integer term;
+    BigDecimal monthlyPayment;
+    BigDecimal rate;
+    Boolean isInsuranceEnabled;
+    Boolean isSalaryClient;
 
 }

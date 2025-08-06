@@ -15,8 +15,7 @@ import java.util.UUID;
 
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Getter
-@Setter
+@Data
 @Table(name = "clients")
 @Builder
 @NoArgsConstructor

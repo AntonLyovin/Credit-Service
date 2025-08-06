@@ -111,7 +111,8 @@ public class ControllerExceptionHandler {
 
             @Schema(description = "List of error details")
             List<ErrorDetail> errors
-    ) {}
+    ) {
+    }
 
     @Schema(description = "Error details")
     public record ErrorDetail(
@@ -126,5 +127,6 @@ public class ControllerExceptionHandler {
 
             @Schema(description = "Error code", example = "InvalidEnumValue")
             String code
-    ) {}
+    ) {
+    }
 }

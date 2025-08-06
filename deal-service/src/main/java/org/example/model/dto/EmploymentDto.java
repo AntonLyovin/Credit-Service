@@ -1,7 +1,10 @@
 package org.example.model.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.example.model.enumerated.EmploymentStatusEnum;
 import org.example.model.enumerated.Position;
 
@@ -10,8 +13,6 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
-@Getter
 @Builder
 public class EmploymentDto {
     @Schema(description = "Статус работы", defaultValue = "SELF_EMPLOYED")

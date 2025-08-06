@@ -56,6 +56,7 @@ public class CreditScoring {
         result.setMonthlyPayment(monthlyPayment);
         return result;
     }
+
     public static ScoringResultDto performScoring(ScoringDataDto data) {
         log.info("Начало скоринга");
         ScoringResultDto result = new ScoringResultDto();

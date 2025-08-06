@@ -9,5 +9,6 @@ import java.util.List;
 
 public interface StatementService {
     List<LoanOfferDto> calculateOffers(LoanStatementRequestDto requestDto) throws ServiceUnavailableException;
+
     ResponseEntity<Void> selectOffer(LoanOfferDto offerDto) throws ServiceUnavailableException;
 }

@@ -3,6 +3,7 @@ package org.example.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.model.dto.FinishRegistrationRequestDto;
@@ -57,12 +58,52 @@ public class DealController {
     )
     public ResponseEntity<Void> finishCalculateCredit(
             @PathVariable UUID statementId,
-            @RequestBody @Valid FinishRegistrationRequestDto requestDto)
-            throws ServiceUnavailableException {
-
+            @RequestBody @Valid FinishRegistrationRequestDto requestDto) throws ServiceUnavailableException {
         log.info("Начало финального расчета. statementId: {} Тело запроса: {}",
                 statementId, requestDto);
         loanProcessingFacade.processCreditCalculation(requestDto, statementId);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/document/{statementId}/send")
+    @Operation(
+            summary = "запрос на отправку документов",
+            description = "Отправляет документы для ранее принятого предложения"
+    )
+    public ResponseEntity<Void> sendDocument(
+            @PathVariable UUID statementId) {
+        log.info("Начало отправки документов. statementId: {} ",
+                statementId);
+        loanProcessingFacade.processSendDocuments(statementId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/document/{statementId}/sign")
+    @Operation(
+            summary = "Запрос на подписание документов",
+            description = "Генерирует SES code для выбранных документов"
+    )
+    public ResponseEntity<Void> signDocument(
+            @PathVariable UUID statementId) {
+        log.info("Начало подписания документов. statementId: {} ",
+                statementId);
+        loanProcessingFacade.processSignDocuments(statementId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/document/{statementId}/code")
+    @Operation(
+            summary = "Отправка кода на подписание документов",
+            description = "Отправляет сгенерированный SES code для выбранных документов"
+    )
+    public ResponseEntity<Void> verifySesCode(
+            @PathVariable UUID statementId,
+            @RequestParam @NotBlank String sesCode) {
+        log.info("Начало верификации Ses code. statementId: {} ",
+                statementId);
+        loanProcessingFacade.processVerifySesCode(statementId, sesCode);
+        return ResponseEntity.ok().build();
+    }
+
+
 }

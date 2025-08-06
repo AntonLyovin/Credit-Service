@@ -34,7 +34,7 @@ public class ScoringController {
             summary = "Расчет кредита",
             description = "Принимает данные для скоринга и возвращает параметры кредита"
     )
-    public CreditDto calculateCredit(@RequestBody  @Parameter(description = "Данные для скоринга") @Valid ScoringDataDto data) {
+    public CreditDto calculateCredit(@RequestBody @Parameter(description = "Данные для скоринга") @Valid ScoringDataDto data) {
         log.info("Начало расчета кредита. Тело запроса: {}", data);
         return scoringService.calculateCredit(data);
     }

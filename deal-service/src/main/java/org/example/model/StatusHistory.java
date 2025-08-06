@@ -12,8 +12,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @Builder

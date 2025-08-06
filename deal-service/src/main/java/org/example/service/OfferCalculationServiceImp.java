@@ -20,7 +20,7 @@ public class OfferCalculationServiceImp implements OfferCalculationService {
     private final PreScoringServiceProperties properties;
 
     public OfferCalculationServiceImp(RestTemplate restTemplate,
-                                       PreScoringServiceProperties properties) {
+                                      PreScoringServiceProperties properties) {
         this.restTemplate = restTemplate;
         this.properties = properties;
     }
@@ -37,7 +37,8 @@ public class OfferCalculationServiceImp implements OfferCalculationService {
                     properties.getUrl(),
                     HttpMethod.POST,
                     requestEntity,
-                    new ParameterizedTypeReference<>() {}
+                    new ParameterizedTypeReference<>() {
+                    }
             );
 
             if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {

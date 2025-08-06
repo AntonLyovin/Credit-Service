@@ -17,12 +17,12 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class OfferServiceImp implements OfferService{
+public class OfferServiceImp implements OfferService {
     private final RestTemplate restTemplate;
     private final PreScoringServiceProperties properties;
 
     public OfferServiceImp(RestTemplate restTemplate,
-                        PreScoringServiceProperties properties) {
+                           PreScoringServiceProperties properties) {
         this.restTemplate = restTemplate;
         this.properties = properties;
     }
@@ -38,7 +38,8 @@ public class OfferServiceImp implements OfferService{
                     properties.getUrl(),
                     HttpMethod.POST,
                     requestEntity,
-                    new ParameterizedTypeReference<>() {}
+                    new ParameterizedTypeReference<>() {
+                    }
             );
 
             if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {

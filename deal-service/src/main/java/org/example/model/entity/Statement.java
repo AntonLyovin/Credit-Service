@@ -17,8 +17,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "statement")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

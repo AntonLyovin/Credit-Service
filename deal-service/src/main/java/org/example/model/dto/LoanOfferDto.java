@@ -10,17 +10,15 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 @Builder
 public class LoanOfferDto {
-     UUID statementId;
-     BigDecimal requestedAmount;
-     BigDecimal totalAmount;
-     Integer term;
-     BigDecimal monthlyPayment;
-     BigDecimal rate;
-     Boolean isInsuranceEnabled;
-     Boolean isSalaryClient;
+    UUID statementId;
+    BigDecimal requestedAmount;
+    BigDecimal totalAmount;
+    Integer term;
+    BigDecimal monthlyPayment;
+    BigDecimal rate;
+    Boolean isInsuranceEnabled;
+    Boolean isSalaryClient;
 
 }

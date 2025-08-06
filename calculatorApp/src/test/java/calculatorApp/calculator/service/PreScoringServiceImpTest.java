@@ -26,9 +26,10 @@ public class PreScoringServiceImpTest {
         MockitoAnnotations.openMocks(this);
         preScoringService = new PreScoringServiceImpl();
     }
-    private LoanStatementRequestDto createRequestDto(){
+
+    private LoanStatementRequestDto createRequestDto() {
         LoanStatementRequestDto requestDto = new LoanStatementRequestDto();
-        requestDto.setAmount( BigDecimal.valueOf(100000));
+        requestDto.setAmount(BigDecimal.valueOf(100000));
         requestDto.setTerm(12);
         requestDto.setFirstName("Иван");
         requestDto.setLastName("Иванов");
@@ -37,7 +38,7 @@ public class PreScoringServiceImpTest {
         requestDto.setBirthdate(LocalDate.of(1990, 1, 1));
         requestDto.setPassportSeries("4444");
         requestDto.setPassportNumber("123456");
-        return  requestDto;
+        return requestDto;
     }
 
     @Test
