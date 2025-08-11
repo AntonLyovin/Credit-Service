@@ -1,5 +1,6 @@
 package org.example.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.DealServiceProperties;
 import org.example.model.dto.LoanOfferDto;
@@ -14,14 +15,11 @@ import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class StatementServiceImp implements StatementService {
     private final RestTemplate restTemplate;
     private final DealServiceProperties dealServiceProperties;
 
-    public StatementServiceImp(RestTemplate restTemplate, DealServiceProperties dealServiceProperties) {
-        this.restTemplate = restTemplate;
-        this.dealServiceProperties = dealServiceProperties;
-    }
 
     @Override
     public List<LoanOfferDto> calculateOffers(LoanStatementRequestDto requestDto) throws ServiceUnavailableException {
@@ -61,7 +59,6 @@ public class StatementServiceImp implements StatementService {
 
             HttpEntity<LoanOfferDto> requestEntity = new HttpEntity<>(offerDto, headers);
 
-            // Добавьте логирование перед отправкой
             log.info("Sending to {}: {}", dealServiceProperties.getUrlSelect(), offerDto);
 
             ResponseEntity<Void> response = restTemplate.exchange(
@@ -71,7 +68,6 @@ public class StatementServiceImp implements StatementService {
                     Void.class
             );
 
-            // Добавьте логирование ответа
             log.info("Received response: {}", response.getStatusCode());
             return response;
 
