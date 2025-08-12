@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.model.dto.FinishRegistrationRequestDto;
 import org.example.model.dto.LoanOfferDto;
 import org.example.model.dto.LoanStatementRequestDto;
+import org.example.model.dto.StatementDto;
+import org.example.model.entity.Statement;
 import org.example.service.LoanProcessingFacade;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -105,5 +107,23 @@ public class DealController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/admin/statement/{statementId}")
+    @Operation(
+            summary = "запрос заявки по statementId",
+            description = "предоставляет полные условия заявки по ID"
+    )
+    public ResponseEntity<Statement> getStatementByStatementId(
+            @PathVariable UUID statementId) {
+        log.info("Начало поиска заявки. statementId: {} ",
+                statementId);
+        loanProcessingFacade.findStatementById(statementId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/admin/statements")
+    public ResponseEntity<List<StatementDto>> getAllStatements() {
+        List<StatementDto> statements = loanProcessingFacade.findAllStatements();
+        return ResponseEntity.ok(statements);
+    }
 
 }

@@ -8,8 +8,13 @@ springdoc:
 server:
   port: 8989
 
+statement:
+  service:
+    url-statement: http://localhost:8888/statement
+    url-offer: http://localhost:8888/statement/offer
 deal:
   service:
-    url-statement: http://localhost:8081/deal/statement
-    url-select: http://localhost:8081/deal/offer/select
+    url-registration: http://localhost:8081/deal/calculate
+    url-document: http://localhost:8081/deal/document
+
 

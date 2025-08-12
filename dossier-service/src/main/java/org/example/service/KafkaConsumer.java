@@ -40,9 +40,7 @@ public class KafkaConsumer {
     }
 
     @KafkaListener(topics = "send-documents", groupId = "my_consumer")
-    public void processSendDocuments(String message) {
-        processMessage(message, "send");
-    }
+    public void processSendDocuments(String message) { processMessage(message, "send");}
 
     @KafkaListener(topics = "send-ses", groupId = "my_consumer")
     public void processSendSes(String message) {

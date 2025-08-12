@@ -7,10 +7,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "statement.service")
+@ConfigurationProperties(prefix = "deal.service")
 @Getter
 @Setter
-public class StatementServiceProperties {
-    private String urlStatement;
-    private String urlOffer;
+public class DealServiceProperties {
+    private String urlRegistration;
+    private String urlDocument;
 }

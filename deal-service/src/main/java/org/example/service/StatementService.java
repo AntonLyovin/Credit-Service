@@ -5,6 +5,7 @@ import org.example.model.StatusHistory;
 import org.example.model.dto.EmailMessage;
 import org.example.model.dto.FinishRegistrationRequestDto;
 import org.example.model.dto.LoanOfferDto;
+import org.example.model.dto.StatementDto;
 import org.example.model.entity.Client;
 import org.example.model.entity.Credit;
 import org.example.model.entity.Statement;
@@ -38,4 +39,6 @@ public interface StatementService {
     void updateStatementWithSesCode(Statement statement);
 
     EmailMessage fillEmailMessageForVerifySesCode(UUID statementId, String sesCode);
+
+    List<StatementDto> findAllStatement();
 }

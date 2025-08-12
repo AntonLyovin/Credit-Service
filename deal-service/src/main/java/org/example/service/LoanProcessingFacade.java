@@ -2,10 +2,7 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.model.dto.FinishRegistrationRequestDto;
-import org.example.model.dto.LoanOfferDto;
-import org.example.model.dto.LoanStatementRequestDto;
-import org.example.model.dto.ScoringDataDto;
+import org.example.model.dto.*;
 import org.example.model.entity.Client;
 import org.example.model.entity.Credit;
 import org.example.model.entity.Statement;
@@ -101,5 +98,15 @@ public class LoanProcessingFacade {
         statementService.updateStatementWithSesCode(statement);
         kafkaProducer.sendMessage(statementService.fillEmailMessageForVerifySesCode(statementId, sesCode), statementService.fillEmailMessageForVerifySesCode(statementId, sesCode).getTheme());
 
+    }
+    @Transactional
+    public Statement findStatementById(UUID statementId){
+        Statement statement = statementService.getStatementById(statementId);
+        return statement;
+    }
+
+    @Transactional
+    public List<StatementDto> findAllStatements(){
+         return statementService.findAllStatement();
     }
 }
