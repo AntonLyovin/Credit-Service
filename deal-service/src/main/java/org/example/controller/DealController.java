@@ -126,4 +126,17 @@ public class DealController {
         return ResponseEntity.ok(statements);
     }
 
+    @PutMapping("/admin/statement/{statementId}/status")
+    @Operation(
+            summary = "Обновление статуса заявки",
+            description = "Обновление статуса документов в заявке"
+    )
+    public ResponseEntity<Void> updateDocumentStatus(
+            @PathVariable UUID statementId) {
+        log.info("Начало обновления статуса документов. statementId: {} ",
+                statementId);
+        loanProcessingFacade.updateDocument(statementId);
+        return ResponseEntity.ok().build();
+    }
+
 }

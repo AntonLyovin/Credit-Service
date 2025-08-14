@@ -159,7 +159,7 @@ public class GatewayServiceImp implements GatewayService {
     }
 
     @Override
-    public ResponseEntity<Void> processVerifySesCode( UUID statementId, String sesCode) throws ServiceUnavailableException {
+    public ResponseEntity<Void> processVerifySesCode(UUID statementId, String sesCode) throws ServiceUnavailableException {
 
         try {
             String url = dealServiceProperties.getUrlDocument() + "/{statementId}/code?sesCode={sesCode}";

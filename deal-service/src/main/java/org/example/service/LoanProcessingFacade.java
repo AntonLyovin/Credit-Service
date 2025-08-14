@@ -109,4 +109,9 @@ public class LoanProcessingFacade {
     public List<StatementDto> findAllStatements(){
          return statementService.findAllStatement();
     }
+    @Transactional
+    public void updateDocument(UUID statementId){
+        Statement statement = statementService.getStatementById(statementId);
+        statementService.updateStatementCreateDocuments(statement);
+    }
 }

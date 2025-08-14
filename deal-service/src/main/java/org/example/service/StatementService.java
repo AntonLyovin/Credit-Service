@@ -41,4 +41,6 @@ public interface StatementService {
     EmailMessage fillEmailMessageForVerifySesCode(UUID statementId, String sesCode);
 
     List<StatementDto> findAllStatement();
+
+    void updateStatementCreateDocuments(Statement statement);
 }

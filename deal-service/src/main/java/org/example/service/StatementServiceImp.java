@@ -297,6 +297,10 @@ public class StatementServiceImp implements StatementService {
                 )
                 .collect(Collectors.toList());
     }
-
+    @Transactional
+    public void updateStatementCreateDocuments(Statement statement) {
+        statement.setStatus(ApplicationStatus.DOCUMENT_CREATED);
+        statementRepository.save(statement);
+    }
 
 }
