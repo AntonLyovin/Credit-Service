@@ -44,7 +44,6 @@ public class GatewayControllerTest {
 
     @Test
     void createStatement_ShouldReturnOffers_WhenValidRequest() throws Exception {
-        // Создаем тестовые данные для запроса
         LoanStatementRequestDto request = new LoanStatementRequestDto(
                 BigDecimal.valueOf(100000),
                 12,
@@ -57,7 +56,6 @@ public class GatewayControllerTest {
                 null
         );
 
-        // Ожидаемые предложения по кредиту
         List<LoanOfferDto> expectedOffers = List.of(
                 new LoanOfferDto(UUID.randomUUID(), BigDecimal.valueOf(100000), BigDecimal.valueOf(90000), 12, BigDecimal.valueOf(8.5), BigDecimal.valueOf(95000), true, true),
                 new LoanOfferDto(UUID.randomUUID(), BigDecimal.valueOf(120000), BigDecimal.valueOf(110000), 24, BigDecimal.valueOf(9.0), BigDecimal.valueOf(115000), false, true)
@@ -100,10 +98,10 @@ public class GatewayControllerTest {
         UUID statementId = UUID.randomUUID();
 
         FinishRegistrationRequestDto request = new FinishRegistrationRequestDto(
-                null, // gender, MaritalStatus - можно оставить null или задать конкретные значения, если есть enum
+                null,
                 null,
                 2,
-                new EmploymentDto(), // Предположим, что у вас есть такой DTO; если нет — замените на подходящий или уберите.
+                new EmploymentDto(),
                 "4444",
                 "666666",
                 LocalDate.of(2020, 1, 1),

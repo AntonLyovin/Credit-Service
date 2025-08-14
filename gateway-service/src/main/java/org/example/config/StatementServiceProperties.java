@@ -12,5 +12,5 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class StatementServiceProperties {
     private String urlStatement;
-    private String urlOffer;
+    private String urlOffer = urlStatement + "/offer";
 }

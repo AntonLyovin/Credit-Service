@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 public class DealServiceProperties {
-    private String urlRegistration;
-    private String urlDocument;
+    private String urlDeal;
+    private String urlRegistration = urlDeal + "/calculate";
+    private String urlDocument = urlDeal + "/document";
 }
