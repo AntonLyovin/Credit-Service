@@ -33,7 +33,7 @@ class GatewayServiceImpTest {
     private RestTemplate restTemplate;
 
     @Mock
-    private StatementServiceProperties statementServiceProperties;
+    private StatementServiceProperties statementServiceProperties ;
 
     @Mock
     private DealServiceProperties dealServiceProperties;
@@ -41,23 +41,26 @@ class GatewayServiceImpTest {
     @InjectMocks
     private GatewayServiceImp gatewayService;
 
-    private final String urlStatement = "http://localhost:8888/statement";
-    private final String urlOffer = "http://localhost:8888/statement/offer";
-    private final String urlRegistration = "http://localhost:8081/deal/calculate";
-    private final String urlDocument = "http://localhost:8081/deal/document";
+    private static final String TEST_BASE_STATEMENT_URL = "http://localhost:8888";
+    private static final String TEST_STATEMENT_URL = TEST_BASE_STATEMENT_URL + "/statement";
+    private static final String TEST_OFFER_URL = TEST_BASE_STATEMENT_URL + "/statement/offer";
+    private static final String TEST_BASE_DEAL_URL = "http://localhost:8081";
+    private static final String TEST_REGISTRATION_URL = TEST_BASE_DEAL_URL + "/deal/calculate";
+    private static final String TEST_DOCUMENT_URL = TEST_BASE_DEAL_URL + "/deal/document";
+
 
     @Test
     void calculateOffers_SuccessfulResponse_ReturnsLoanOffers() throws ServiceUnavailableException {
         LoanStatementRequestDto requestDto = new LoanStatementRequestDto();
         List<LoanOfferDto> expectedOffers = List.of(new LoanOfferDto());
 
-        when(statementServiceProperties.getUrlStatement()).thenReturn(urlStatement);
+        when(statementServiceProperties.getFullStatementUrl()).thenReturn(TEST_STATEMENT_URL);
 
         ResponseEntity<List<LoanOfferDto>> responseEntity = new ResponseEntity<>(
                 expectedOffers, HttpStatus.OK);
 
         when(restTemplate.exchange(
-                eq(urlStatement),
+                eq(TEST_STATEMENT_URL),
                 eq(HttpMethod.POST),
                 any(HttpEntity.class),
                 any(ParameterizedTypeReference.class)))
@@ -67,7 +70,7 @@ class GatewayServiceImpTest {
 
         assertEquals(expectedOffers, result);
         verify(restTemplate).exchange(
-                eq(urlStatement),
+                eq(TEST_STATEMENT_URL),
                 eq(HttpMethod.POST),
                 any(HttpEntity.class),
                 any(ParameterizedTypeReference.class));
@@ -78,9 +81,9 @@ class GatewayServiceImpTest {
         LoanOfferDto offerDto = new LoanOfferDto();
         ResponseEntity<Void> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
-        when(statementServiceProperties.getUrlOffer()).thenReturn(urlOffer);
+        when(statementServiceProperties.getFullOfferUrl()).thenReturn(TEST_OFFER_URL);
         when(restTemplate.exchange(
-                eq(urlOffer),
+                eq(TEST_OFFER_URL),
                 eq(HttpMethod.POST),
                 any(HttpEntity.class),
                 eq(Void.class)))
@@ -90,7 +93,7 @@ class GatewayServiceImpTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(restTemplate).exchange(
-                eq(urlOffer),
+                eq(TEST_OFFER_URL),
                 eq(HttpMethod.POST),
                 any(HttpEntity.class),
                 eq(Void.class));
@@ -101,9 +104,9 @@ class GatewayServiceImpTest {
         LoanOfferDto offerDto = new LoanOfferDto();
         HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Bad Request");
 
-        when(statementServiceProperties.getUrlOffer()).thenReturn(urlOffer);
+        when(statementServiceProperties.getFullOfferUrl()).thenReturn(TEST_OFFER_URL);
         when(restTemplate.exchange(
-                eq(urlOffer),
+                eq(TEST_OFFER_URL),
                 eq(HttpMethod.POST),
                 any(HttpEntity.class),
                 eq(Void.class)))
@@ -120,9 +123,9 @@ class GatewayServiceImpTest {
         LoanOfferDto offerDto = new LoanOfferDto();
         HttpServerErrorException exception = new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Server Error");
 
-        when(statementServiceProperties.getUrlOffer()).thenReturn(urlOffer);
+        when(statementServiceProperties.getFullOfferUrl()).thenReturn(TEST_OFFER_URL);
         when(restTemplate.exchange(
-                eq(urlOffer),
+                eq(TEST_OFFER_URL),
                 eq(HttpMethod.POST),
                 any(HttpEntity.class),
                 eq(Void.class)))
@@ -139,9 +142,9 @@ class GatewayServiceImpTest {
         LoanOfferDto offerDto = new LoanOfferDto();
         ResourceAccessException exception = new ResourceAccessException("Connection timed out");
 
-        when(statementServiceProperties.getUrlOffer()).thenReturn(urlOffer);
+        when(statementServiceProperties.getFullOfferUrl()).thenReturn(TEST_OFFER_URL);
         when(restTemplate.exchange(
-                eq(urlOffer),
+                eq(TEST_OFFER_URL),
                 eq(HttpMethod.POST),
                 any(HttpEntity.class),
                 eq(Void.class)))
@@ -160,10 +163,10 @@ class GatewayServiceImpTest {
         ResponseEntity<Void> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
         String addUrl = "/{statementId}";
 
-        when(dealServiceProperties.getUrlRegistration()).thenReturn(urlRegistration);
+        when(dealServiceProperties.getFullRegistrationUrl()).thenReturn(TEST_REGISTRATION_URL);
 
         when(restTemplate.exchange(
-                eq(urlRegistration + addUrl),
+                eq(TEST_REGISTRATION_URL + addUrl),
                 eq(HttpMethod.POST),
                 any(HttpEntity.class),
                 eq(Void.class),
@@ -174,7 +177,7 @@ class GatewayServiceImpTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(restTemplate).exchange(
-                eq(urlRegistration + addUrl),
+                eq(TEST_REGISTRATION_URL + addUrl),
                 eq(HttpMethod.POST),
                 any(HttpEntity.class),
                 eq(Void.class),
@@ -187,10 +190,10 @@ class GatewayServiceImpTest {
         FinishRegistrationRequestDto requestDto = new FinishRegistrationRequestDto();
         String addUrl = "/{statementId}";
 
-        when(dealServiceProperties.getUrlRegistration()).thenReturn(urlRegistration);
+        when(dealServiceProperties.getFullRegistrationUrl()).thenReturn(TEST_REGISTRATION_URL);
 
         when(restTemplate.exchange(
-                eq(urlRegistration + addUrl),
+                eq(TEST_REGISTRATION_URL + addUrl),
                 eq(HttpMethod.POST),
                 any(HttpEntity.class),
                 eq(Void.class),
@@ -210,7 +213,7 @@ class GatewayServiceImpTest {
         FinishRegistrationRequestDto requestDto = new FinishRegistrationRequestDto();
         String addUrl = "/{statementId}";
 
-        when(dealServiceProperties.getUrlRegistration()).thenReturn(urlRegistration);
+        when(dealServiceProperties.getFullRegistrationUrl()).thenReturn(TEST_REGISTRATION_URL);
         when(restTemplate.exchange(
                 anyString(),
                 any(),
@@ -221,10 +224,10 @@ class GatewayServiceImpTest {
 
         gatewayService.processCreditCalculation(requestDto, statementId);
 
-        verify(dealServiceProperties).getUrlRegistration();
+        verify(dealServiceProperties).getFullRegistrationUrl();
 
         verify(restTemplate).exchange(
-                eq(urlRegistration + addUrl),
+                eq(TEST_REGISTRATION_URL + addUrl),
                 eq(HttpMethod.POST),
                 argThat((HttpEntity<FinishRegistrationRequestDto> entity) ->
                         entity.getHeaders().getContentType().equals(MediaType.APPLICATION_JSON) &&
@@ -238,9 +241,9 @@ class GatewayServiceImpTest {
         UUID statementId = UUID.randomUUID();
         String addUrl = "/{statementId}/send";
 
-        when(dealServiceProperties.getUrlDocument()).thenReturn(urlDocument);
+        when(dealServiceProperties.getFullDocumentUrl()).thenReturn(TEST_DOCUMENT_URL);
         when(restTemplate.exchange(
-                eq(urlDocument + addUrl),
+                eq(TEST_DOCUMENT_URL + addUrl),
                 eq(HttpMethod.POST),
                 isNull(),
                 eq(Void.class),
@@ -251,7 +254,7 @@ class GatewayServiceImpTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(restTemplate).exchange(
-                eq(urlDocument + addUrl),
+                eq(TEST_DOCUMENT_URL + addUrl),
                 eq(HttpMethod.POST),
                 isNull(),
                 eq(Void.class),
@@ -262,7 +265,7 @@ class GatewayServiceImpTest {
     void processSendDocuments_RestClientException_ThrowsServiceUnavailable() {
         UUID statementId = UUID.randomUUID();
 
-        when(dealServiceProperties.getUrlDocument()).thenReturn(urlDocument);
+        when(dealServiceProperties.getFullDocumentUrl()).thenReturn(TEST_DOCUMENT_URL);
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.POST),
@@ -283,7 +286,7 @@ class GatewayServiceImpTest {
         UUID statementId = UUID.randomUUID();
         String addUrl = "/{statementId}/send";
 
-        when(dealServiceProperties.getUrlDocument()).thenReturn(urlDocument);
+        when(dealServiceProperties.getFullDocumentUrl()).thenReturn(TEST_DOCUMENT_URL);
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.POST),
@@ -295,7 +298,7 @@ class GatewayServiceImpTest {
         gatewayService.processSendDocuments(statementId);
 
         verify(restTemplate).exchange(
-                eq(urlDocument + addUrl),
+                eq(TEST_DOCUMENT_URL + addUrl),
                 eq(HttpMethod.POST),
                 isNull(),
                 eq(Void.class),
@@ -306,7 +309,7 @@ class GatewayServiceImpTest {
     void processSendDocuments_VerifyHeadersNotSetWhenBodyIsNull() throws ServiceUnavailableException {
         UUID statementId = UUID.randomUUID();
 
-        when(dealServiceProperties.getUrlDocument()).thenReturn(urlDocument);
+        when(dealServiceProperties.getFullDocumentUrl()).thenReturn(TEST_DOCUMENT_URL);
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.POST),
@@ -330,9 +333,9 @@ class GatewayServiceImpTest {
         UUID statementId = UUID.randomUUID();
         String addUrl = "/{statementId}/sign";
 
-        when(dealServiceProperties.getUrlDocument()).thenReturn(urlDocument);
+        when(dealServiceProperties.getFullDocumentUrl()).thenReturn(TEST_DOCUMENT_URL);
         when(restTemplate.exchange(
-                eq(urlDocument + addUrl),
+                eq(TEST_DOCUMENT_URL + addUrl),
                 eq(HttpMethod.POST),
                 isNull(),
                 eq(Void.class),
@@ -343,7 +346,7 @@ class GatewayServiceImpTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(restTemplate).exchange(
-                eq(urlDocument + addUrl),
+                eq(TEST_DOCUMENT_URL + addUrl),
                 eq(HttpMethod.POST),
                 isNull(),
                 eq(Void.class),
@@ -355,7 +358,7 @@ class GatewayServiceImpTest {
         UUID statementId = UUID.randomUUID();
         String addUrl = "/{statementId}/sign";
 
-        when(dealServiceProperties.getUrlDocument()).thenReturn(urlDocument);
+        when(dealServiceProperties.getFullDocumentUrl()).thenReturn(TEST_DOCUMENT_URL);
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.POST),
@@ -370,7 +373,7 @@ class GatewayServiceImpTest {
 
         assertEquals("Сервис расчета кредита недоступен", exception.getMessage());
         verify(restTemplate).exchange(
-                eq(urlDocument + addUrl),
+                eq(TEST_DOCUMENT_URL + addUrl),
                 eq(HttpMethod.POST),
                 isNull(),
                 eq(Void.class),
@@ -382,9 +385,9 @@ class GatewayServiceImpTest {
         UUID statementId = UUID.randomUUID();
         String addUrl = "/{statementId}/sign";
 
-        when(dealServiceProperties.getUrlDocument()).thenReturn(urlDocument);
+        when(dealServiceProperties.getFullDocumentUrl()).thenReturn(TEST_DOCUMENT_URL);
         when(restTemplate.exchange(
-                eq(urlDocument + addUrl),
+                eq(TEST_DOCUMENT_URL + addUrl),
                 eq(HttpMethod.POST),
                 isNull(),
                 eq(Void.class),
@@ -394,7 +397,7 @@ class GatewayServiceImpTest {
         gatewayService.processSignDocuments(statementId);
 
         verify(restTemplate).exchange(
-                eq(urlDocument + addUrl),
+                eq(TEST_DOCUMENT_URL + addUrl),
                 eq(HttpMethod.POST),
                 isNull(),
                 eq(Void.class),
@@ -405,7 +408,7 @@ class GatewayServiceImpTest {
     void processSignDocuments_VerifyNullBodyAndNoHeaders() throws ServiceUnavailableException {
         UUID statementId = UUID.randomUUID();
 
-        when(dealServiceProperties.getUrlDocument()).thenReturn(urlDocument);
+        when(dealServiceProperties.getFullDocumentUrl()).thenReturn(TEST_DOCUMENT_URL);
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.POST),
@@ -430,9 +433,9 @@ class GatewayServiceImpTest {
         String sesCode = "123456";
         String addUrl = "/{statementId}/code?sesCode={sesCode}";
 
-        when(dealServiceProperties.getUrlDocument()).thenReturn(urlDocument);
+        when(dealServiceProperties.getFullDocumentUrl()).thenReturn(TEST_DOCUMENT_URL);
         when(restTemplate.exchange(
-                eq(urlDocument + addUrl),
+                eq(TEST_DOCUMENT_URL + addUrl),
                 eq(HttpMethod.POST),
                 isNull(),
                 eq(Void.class),
@@ -444,7 +447,7 @@ class GatewayServiceImpTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(restTemplate).exchange(
-                eq(urlDocument + "/{statementId}/code?sesCode={sesCode}"),
+                eq(TEST_DOCUMENT_URL + "/{statementId}/code?sesCode={sesCode}"),
                 eq(HttpMethod.POST),
                 isNull(),
                 eq(Void.class),
@@ -458,7 +461,7 @@ class GatewayServiceImpTest {
         String sesCode = "654321";
         String addUrl = "/{statementId}/code?sesCode={sesCode}";
 
-        when(dealServiceProperties.getUrlDocument()).thenReturn(urlDocument);
+        when(dealServiceProperties.getFullDocumentUrl()).thenReturn(TEST_DOCUMENT_URL);
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.POST),
@@ -474,7 +477,7 @@ class GatewayServiceImpTest {
 
         assertEquals("Сервис расчета кредита недоступен", exception.getMessage());
         verify(restTemplate).exchange(
-                eq(urlDocument + addUrl),
+                eq(TEST_DOCUMENT_URL + addUrl),
                 eq(HttpMethod.POST),
                 isNull(),
                 eq(Void.class),
@@ -488,7 +491,7 @@ class GatewayServiceImpTest {
         String sesCode = "987654";
         String addUrl = "/{statementId}/code?sesCode={sesCode}";
 
-        when(dealServiceProperties.getUrlDocument()).thenReturn(urlDocument);
+        when(dealServiceProperties.getFullDocumentUrl()).thenReturn(TEST_DOCUMENT_URL);
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.POST),
@@ -501,7 +504,7 @@ class GatewayServiceImpTest {
         gatewayService.processVerifySesCode(statementId, sesCode);
 
         verify(restTemplate).exchange(
-                eq(urlDocument + addUrl),
+                eq(TEST_DOCUMENT_URL + addUrl),
                 eq(HttpMethod.POST),
                 isNull(),
                 eq(Void.class),
@@ -514,7 +517,7 @@ class GatewayServiceImpTest {
         UUID statementId = UUID.randomUUID();
         String sesCode = "111222";
 
-        when(dealServiceProperties.getUrlDocument()).thenReturn(urlDocument);
+        when(dealServiceProperties.getFullDocumentUrl()).thenReturn(TEST_DOCUMENT_URL);
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.POST),
@@ -541,7 +544,7 @@ class GatewayServiceImpTest {
         String emptySesCode = "";
         String addUrl = "/{statementId}/code?sesCode={sesCode}";
 
-        when(dealServiceProperties.getUrlDocument()).thenReturn(urlDocument);
+        when(dealServiceProperties.getFullDocumentUrl()).thenReturn(TEST_DOCUMENT_URL);
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.POST),
@@ -557,7 +560,7 @@ class GatewayServiceImpTest {
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(restTemplate).exchange(
-                eq(urlDocument + addUrl),
+                eq(TEST_DOCUMENT_URL + addUrl),
                 eq(HttpMethod.POST),
                 isNull(),
                 eq(Void.class),

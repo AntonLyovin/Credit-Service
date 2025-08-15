@@ -7,6 +7,7 @@ import org.example.config.StatementServiceProperties;
 import org.example.model.dto.FinishRegistrationRequestDto;
 import org.example.model.dto.LoanOfferDto;
 import org.example.model.dto.LoanStatementRequestDto;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@EnableConfigurationProperties
 public class GatewayServiceImp implements GatewayService {
     private final RestTemplate restTemplate;
     private final StatementServiceProperties statementServiceProperties;
@@ -33,7 +35,7 @@ public class GatewayServiceImp implements GatewayService {
             HttpEntity<LoanStatementRequestDto> requestEntity = new HttpEntity<>(requestDto, headers);
 
             ResponseEntity<List<LoanOfferDto>> response = restTemplate.exchange(
-                    statementServiceProperties.getUrlStatement(),
+                    statementServiceProperties.getFullStatementUrl(),
                     HttpMethod.POST,
                     requestEntity,
                     new ParameterizedTypeReference<>() {
@@ -62,10 +64,10 @@ public class GatewayServiceImp implements GatewayService {
 
             HttpEntity<LoanOfferDto> requestEntity = new HttpEntity<>(offerDto, headers);
 
-            log.info("Sending to {}: {}", statementServiceProperties.getUrlOffer(), offerDto);
+            log.info("Sending to {}: {}", statementServiceProperties.getFullOfferUrl(), offerDto);
 
             ResponseEntity<Void> response = restTemplate.exchange(
-                    statementServiceProperties.getUrlOffer(),
+                    statementServiceProperties.getFullOfferUrl(),
                     HttpMethod.POST,
                     requestEntity,
                     Void.class
@@ -94,7 +96,7 @@ public class GatewayServiceImp implements GatewayService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            String url = dealServiceProperties.getUrlRegistration() + "/{statementId}";
+            String url = dealServiceProperties.getFullRegistrationUrl() + "/{statementId}";
 
             HttpEntity<FinishRegistrationRequestDto> requestEntity = new HttpEntity<>(requestDto, headers);
 
@@ -119,7 +121,7 @@ public class GatewayServiceImp implements GatewayService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            String url = dealServiceProperties.getUrlDocument() + "/{statementId}/send";
+            String url = dealServiceProperties.getFullDocumentUrl() + "/{statementId}/send";
 
             return restTemplate.exchange(
                     url,
@@ -142,7 +144,7 @@ public class GatewayServiceImp implements GatewayService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            String url = dealServiceProperties.getUrlDocument() + "/{statementId}/sign";
+            String url = dealServiceProperties.getFullDocumentUrl() + "/{statementId}/sign";
 
             return restTemplate.exchange(
                     url,
@@ -162,7 +164,7 @@ public class GatewayServiceImp implements GatewayService {
     public ResponseEntity<Void> processVerifySesCode(UUID statementId, String sesCode) throws ServiceUnavailableException {
 
         try {
-            String url = dealServiceProperties.getUrlDocument() + "/{statementId}/code?sesCode={sesCode}";
+            String url = dealServiceProperties.getFullDocumentUrl() + "/{statementId}/code?sesCode={sesCode}";
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
