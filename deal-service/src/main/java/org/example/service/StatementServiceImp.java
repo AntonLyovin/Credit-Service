@@ -281,5 +281,26 @@ public class StatementServiceImp implements StatementService {
         statementRepository.save(statement);
     }
 
+    @Transactional
+    public List<StatementDto> findAllStatement(){
+        List<Statement> statements = statementRepository.findAll();
+        return statements.stream()
+                .map(statement -> StatementDto.builder()
+                        .statementId(statement.getStatementId())
+                        .status(statement.getStatus())
+                        .creationDate(statement.getCreationDate())
+                        .appliedOffer(statement.getAppliedOffer())
+                        .signDate(statement.getSignDate())
+                        .sesCode(statement.getSesCode())
+                        .statusHistory(statement.getStatusHistory())
+                        .build()
+                )
+                .collect(Collectors.toList());
+    }
+    @Transactional
+    public void updateStatementCreateDocuments(Statement statement) {
+        statement.setStatus(ApplicationStatus.DOCUMENT_CREATED);
+        statementRepository.save(statement);
+    }
 
 }

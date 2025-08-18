@@ -1,0 +1,25 @@
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  api_docs:
+    enabled: true
+
+server:
+  port: 8989
+
+statement:
+  service:
+    url-service: http://localhost:8888
+    endpoint:
+      statement: /statement
+      offer: /statement/offer
+deal:
+  service:
+    url-deal: http://localhost:8081
+    endpoint:
+      registration: /deal/calculate
+      document: /deal/document
+
+
+

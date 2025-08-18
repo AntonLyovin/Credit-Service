@@ -34,3 +34,8 @@ spring:
 
 server:
   port: 8000
+
+deal:
+  service:
+    url-admin: http://localhost:8081/deal/admin/statement
+

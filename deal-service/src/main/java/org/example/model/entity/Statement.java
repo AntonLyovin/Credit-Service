@@ -55,7 +55,7 @@ public class Statement {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "status_history", columnDefinition = "jsonb")
-    private List<StatusHistory> statusHistory = new ArrayList<>();
+    List<StatusHistory> statusHistory = new ArrayList<>();
 
 
 }

@@ -9,9 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.model.dto.FinishRegistrationRequestDto;
 import org.example.model.dto.LoanOfferDto;
 import org.example.model.dto.LoanStatementRequestDto;
-import org.example.model.dto.StatementDto;
-import org.example.model.entity.Statement;
-import org.example.service.LoanProcessingFacade;
+import org.example.service.GatewayService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,40 +18,39 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/deal")
+@RequestMapping
 @Slf4j
 @RequiredArgsConstructor
-
-public class DealController {
-    private final LoanProcessingFacade loanProcessingFacade;
+public class GatewayController {
+    private final GatewayService gatewayService;
 
     @PostMapping("/statement")
     @Operation(
-            summary = "Расчет предложений",
-            description = "Принимает данные для прескоринга и возвращает список кредитных предложений"
+            summary = "Микросервис заявка",
+            description = "Проводит прескоринг и отправляет запрос на расчет возможных условий кредита"
     )
     public List<LoanOfferDto> createStatement(
             @RequestBody @Parameter(description = "Данные для прескоринга")
             @Valid LoanStatementRequestDto requestDto) throws ServiceUnavailableException {
 
         log.info("Начало расчета кредита. Тело запроса: {}", requestDto);
-        return loanProcessingFacade.processLoanApplication(requestDto);
+        return gatewayService.calculateOffers(requestDto);
     }
 
-    @PostMapping("/offer/select")
+    @PostMapping("/statement/select")
     @Operation(
             summary = "Выбор предложения",
-            description = "Принимает выбранное кредитное предложение и обновляет заявку"
+            description = "Принимает выбранное кредитное предложение"
     )
     public ResponseEntity<Void> selectOffer(
-            @RequestBody @Valid LoanOfferDto loanOfferDto) {
+            @RequestBody @Valid LoanOfferDto loanOfferDto) throws ServiceUnavailableException {
 
         log.info("Начало выбора предложения. Тело запроса: {}", loanOfferDto);
-        loanProcessingFacade.processOfferSelection(loanOfferDto);
+        gatewayService.selectOffer(loanOfferDto);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/calculate/{statementId}")
+    @PostMapping("/statement/registration/{statementId}")
     @Operation(
             summary = "Финальный расчет кредита",
             description = "Принимает данные для финального расчета и создает кредит"
@@ -63,33 +60,32 @@ public class DealController {
             @RequestBody @Valid FinishRegistrationRequestDto requestDto) throws ServiceUnavailableException {
         log.info("Начало финального расчета. statementId: {} Тело запроса: {}",
                 statementId, requestDto);
-        loanProcessingFacade.processCreditCalculation(requestDto, statementId);
+        gatewayService.processCreditCalculation(requestDto, statementId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/document/{statementId}/send")
+    @PostMapping("/document/{statementId}")
     @Operation(
             summary = "запрос на отправку документов",
             description = "Отправляет документы для ранее принятого предложения"
     )
     public ResponseEntity<Void> sendDocument(
-            @PathVariable UUID statementId) {
+            @PathVariable UUID statementId) throws ServiceUnavailableException {
         log.info("Начало отправки документов. statementId: {} ",
                 statementId);
-        loanProcessingFacade.processSendDocuments(statementId);
+        gatewayService.processSendDocuments(statementId);
         return ResponseEntity.ok().build();
     }
-
     @PostMapping("/document/{statementId}/sign")
     @Operation(
             summary = "Запрос на подписание документов",
             description = "Генерирует SES code для выбранных документов"
     )
     public ResponseEntity<Void> signDocument(
-            @PathVariable UUID statementId) {
+            @PathVariable UUID statementId) throws ServiceUnavailableException {
         log.info("Начало подписания документов. statementId: {} ",
                 statementId);
-        loanProcessingFacade.processSignDocuments(statementId);
+        gatewayService.processSignDocuments(statementId);
         return ResponseEntity.ok().build();
     }
 
@@ -100,43 +96,10 @@ public class DealController {
     )
     public ResponseEntity<Void> verifySesCode(
             @PathVariable UUID statementId,
-            @RequestParam @NotBlank String sesCode) {
+            @RequestParam @NotBlank String sesCode) throws ServiceUnavailableException {
         log.info("Начало верификации Ses code. statementId: {} ",
                 statementId);
-        loanProcessingFacade.processVerifySesCode(statementId, sesCode);
+        gatewayService.processVerifySesCode(statementId, sesCode);
         return ResponseEntity.ok().build();
     }
-
-    @GetMapping("/admin/statement/{statementId}")
-    @Operation(
-            summary = "запрос заявки по statementId",
-            description = "предоставляет полные условия заявки по ID"
-    )
-    public ResponseEntity<Statement> getStatementByStatementId(
-            @PathVariable UUID statementId) {
-        log.info("Начало поиска заявки. statementId: {} ",
-                statementId);
-        loanProcessingFacade.findStatementById(statementId);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/admin/statements")
-    public ResponseEntity<List<StatementDto>> getAllStatements() {
-        List<StatementDto> statements = loanProcessingFacade.findAllStatements();
-        return ResponseEntity.ok(statements);
-    }
-
-    @PutMapping("/admin/statement/{statementId}/status")
-    @Operation(
-            summary = "Обновление статуса заявки",
-            description = "Обновление статуса документов в заявке"
-    )
-    public ResponseEntity<Void> updateDocumentStatus(
-            @PathVariable UUID statementId) {
-        log.info("Начало обновления статуса документов. statementId: {} ",
-                statementId);
-        loanProcessingFacade.updateDocument(statementId);
-        return ResponseEntity.ok().build();
-    }
-
 }

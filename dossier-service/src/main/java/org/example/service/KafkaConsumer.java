@@ -14,11 +14,13 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Service;
 
+import javax.naming.ServiceUnavailableException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class KafkaConsumer {
 
+    private final SendResponseService sendResponseService;
     private final EmailService emailService;
     private final ObjectMapper objectMapper;
 
@@ -35,14 +38,14 @@ public class KafkaConsumer {
     }
 
     @KafkaListener(topics = "create-documents", groupId = "my_consumer")
-    public void processCreateDocuments(String message) {
-        processMessage(message, "documents");
-    }
+    public void processCreateDocuments(String message) {processMessage(message, "documents");}
 
     @KafkaListener(topics = "send-documents", groupId = "my_consumer")
     public void processSendDocuments(String message) {
-        processMessage(message, "send");
-    }
+
+
+
+        processMessage(message, "send");}
 
     @KafkaListener(topics = "send-ses", groupId = "my_consumer")
     public void processSendSes(String message) {
@@ -126,13 +129,13 @@ public class KafkaConsumer {
                             "Ежемесячный платеж: " + message.getCredit().getMonthlyPayment() + "\n" +
                             "Ставка: " + message.getCredit().getRate() + "\n" +
                             "ПСК: " + message.getCredit().getPsk() + "\n";
-
                     addTextWithWrapping(contentStream, font, fontSize, width, creditText);
+                    sendResponseService.processSendDocumentsStatus(UUID.fromString((message.getStatementId())));
 
                     if (message.getCredit().getPaymentSchedule() != null) {
                         String schedule = "График платежей:\n" +
                                 message.getCredit().getPaymentSchedule().stream()
-                                        .map(ps -> ps.toString()) // реализуйте toString() для PaymentSchedule
+                                        .map(ps -> ps.toString())
                                         .collect(Collectors.joining("\n"));
 
                         addTextWithWrapping(contentStream, font, fontSize, width, schedule);
@@ -153,6 +156,8 @@ public class KafkaConsumer {
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 document.save(byteArrayOutputStream);
                 return byteArrayOutputStream.toByteArray();
+            } catch (ServiceUnavailableException e) {
+                throw new RuntimeException(e);
             } finally {
                 fontStream.close();
             }
