@@ -20,8 +20,10 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Собрать проект и запустить тесты с покрытием
-        run: mvn clean verify jacoco:report
+      - name: Собрать модуль deal-service
+        run: |
+          cd deal-service
+          mvn clean verify jacoco:report
 
       - name: Отправить отчёт о покрытии в Codecov
         run: bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }}
