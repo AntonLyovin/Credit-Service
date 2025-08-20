@@ -1,23 +1,12 @@
-name: CI
-
-on:
-  push:
-    branches:
-      - develope/feature/devops
-
+name: Ci
+on: push
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout код
+      - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Настроить JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Запустить тесты с покрытием
-        run: mvn clean verify jacoco:report
+      - name: Install deps
+        run: npm ci
+      - name: Lint
+        run: npm run lint
