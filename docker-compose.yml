@@ -3,7 +3,7 @@ version: "3.9"
 services:
   db:
     image: postgres:13.8-alpine
-    container_name: credit-db
+    container_name: db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: qwerty123
@@ -12,55 +12,67 @@ services:
       - "5433:5432"
     networks:
       - mynet
+  zookeeper:
+    image: zookeeper:3.7.0
+    container_name: zookeeper1
+    restart: "no"
+    networks:
+      - mynet
+    ports:
+      - "2181:2181"
+
   kafka:
     image: obsidiandynamics/kafka
-    container_name: kafka
+    container_name: kafka1
+    restart: "no"
+    networks:
+      - mynet
     ports:
       - "9092:9092"
     environment:
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,DOCKER_INTERNAL:PLAINTEXT,DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    networks:
-      - mynet
-
-  zookeeper:
-    image: zookeeper
-    container_name: zookeeper
-    ports:
-      - "2181:2181"
-    networks:
-      - mynet
+    depends_on:
+      - zookeeper
 
   kafdrop:
-    image: obsidiandynamics/kafdrop
-    container_name: kafdrop
-    ports:
-      - "9000:9000"
-    environment:
-      KAFKA_BROKERCONNECT: kafka:9092
-      JVM_OPTS: "-Xms32m -Xmx64m"
-    depends_on:
-      - kafka
-    networks:
-      - mynet
+      image: obsidiandynamics/kafdrop
+      container_name: kafdrop1
+      restart: "no"
+      ports:
+        - "9000:9000"
+      environment:
+        KAFKA_BROKERCONNECT: "kafka:29092"
+      depends_on:
+        - "kafka"
+      networks:
+        - mynet
 
   deal-service:
     build: ./deal-service
     container_name: deal-service
     ports:
       - "8081:8081"
+    depends_on:
+      - db
+      - kafka
+      - zookeeper
+      - kafdrop
     networks:
       - mynet
-    depends_on:
-      - app1   # если app2 зависит от app1
 
   dossier-service:
     build: ./dossier-service
     container_name: dossier-service
     ports:
       - "8000:8000"
+    depends_on:
+      - deal-service
     networks:
       - mynet
 
@@ -77,6 +89,8 @@ services:
     container_name: statement-service
     ports:
       - "8888:8888"
+    depends_on:
+      - deal-service
     networks:
       - mynet
 
@@ -85,6 +99,8 @@ services:
     container_name: gateway-service
     ports:
       - "8989:8989"
+    depends_on:
+      - deal-service
     networks:
       - mynet
 

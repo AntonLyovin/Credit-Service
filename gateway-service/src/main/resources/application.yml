@@ -10,13 +10,13 @@ server:
 
 statement:
   service:
-    url-service: http://localhost:8888
+    url-service: http://statement-service:8888
     endpoint:
       statement: /statement
       offer: /statement/offer
 deal:
   service:
-    url-deal: http://localhost:8081
+    url-deal: http://deal-service:8081
     endpoint:
       registration: /deal/calculate
       document: /deal/document

@@ -2,7 +2,7 @@ spring:
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:29092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -37,5 +37,5 @@ server:
 
 deal:
   service:
-    url-admin: http://localhost:8081/deal/admin/statement
+    url-admin: http://deal-service:8081/deal/admin/statement
 

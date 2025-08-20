@@ -10,6 +10,6 @@ server:
 
 deal:
   service:
-    url-statement: http://localhost:8081/deal/statement
-    url-select: http://localhost:8081/deal/offer/select
+    url-statement: http://deal-service:8081/deal/statement
+    url-select: http://deal-service:8081/deal/offer/select
 
