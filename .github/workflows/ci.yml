@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - develope/feature/devops
+      - develop/feature/devops
   pull_request:
 
 jobs:
@@ -14,7 +14,7 @@ jobs:
       - name: Checkout код
         uses: actions/checkout@v3
         with:
-          ref: develope/feature/devops
+          ref: develop/feature/devops
         
       - name: Переключиться на ветку develop/feature/devops
         run: git checkout develop/feature/devops
