@@ -17,7 +17,7 @@ jobs:
           ref: feature/devops
         
       - name: Переключиться на ветку develop/feature/devops
-        run: git checkout develop/feature/devops
+        run: git checkout feature/devops
 
       - name: Настроить JDK
         uses: actions/setup-java@v3
