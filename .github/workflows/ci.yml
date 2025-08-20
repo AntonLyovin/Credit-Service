@@ -1,5 +1,4 @@
 name: CI for Credit-Service App
-
 on:
   push:
     branches: [ "develope/feature/devops" ] 
