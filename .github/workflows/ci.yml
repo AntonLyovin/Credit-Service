@@ -28,6 +28,7 @@ jobs:
       - name: Собрать модуль calculatorApp
         run: |
           cd calculatorApp
+          mvn sonar:sonar -Dsonar.branch.name=feature/devops
           mvn clean verify jacoco:report
 
       - name: Отправить отчёт о покрытии в Codecov
@@ -40,6 +41,6 @@ jobs:
           cd calculatorApp
           mvn sonar:sonar \
             -Dsonar.organization=AntonLyovin \
-            -Dsonar.projectKey=Credit-Service \
+            -Dsonar.projectKey=Credit-Service -Dsonar.branch.name=feature/devops \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
