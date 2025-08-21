@@ -25,7 +25,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Собрать модуль deal-service
+      - name: Собрать модуль calculatorApp
         run: |
           cd calculatorApp
           mvn clean verify jacoco:report
@@ -39,7 +39,7 @@ jobs:
         run: |
           cd calculatorApp
           mvn sonar:sonar \
-            -Dsonar.organization=my-org \
-            -Dsonar.projectKey=my-project \
+            -Dsonar.organization=AntonLyovin \
+            -Dsonar.projectKey=Credit-Service \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
