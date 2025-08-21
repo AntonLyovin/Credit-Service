@@ -20,6 +20,7 @@ jobs:
         distribution: 'temurin'
 
     - name: Build with Maven
+        cd calculatorApp
       run: mvn compile -DskipTests
 
     - name: Analyze with SonarCloud
