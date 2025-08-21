@@ -31,10 +31,11 @@ jobs:
           mvn clean verify jacoco:report
           mvn sonar:sonar \
             -Dsonar.organization=AntonLyovin \
-            -Dsonar.projectKey=Credit-Service \
+            -Dsonar.projectKey=AntonLyovin_Credit-Service \
             -Dsonar.branch.name=feature/devops \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+     
 
       - name: Отправить отчёт о покрытии в Codecov
         run: bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }}
