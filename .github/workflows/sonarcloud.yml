@@ -19,12 +19,13 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
-    - name: Build and analyze
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Токен из secrets GitHub
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Токен автоматически предоставляется GitHub
+    - name: Build with Maven
+      run: mvn compile -DskipTests
+
+    - name: Analyze with SonarCloud
       run: |
-        ./gradlew build --no-daemon # или "mvn compile" для Maven
-        ./gradlew sonar --no-daemon \
+        mvn sonar:sonar \
           -Dsonar.projectKey=AntonLyovin_Credit-Service \
-          -Dsonar.branch.name=${{ github.ref_name }} 
+          -Dsonar.branch.name=${{ github.ref_name }} \
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+          -Dsonar.host.url=https://sonarcloud.io
