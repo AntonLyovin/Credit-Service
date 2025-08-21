@@ -27,4 +27,4 @@ jobs:
         ./gradlew build --no-daemon # или "mvn compile" для Maven
         ./gradlew sonar --no-daemon \
           -Dsonar.projectKey=AntonLyovin_Credit-Service \
-          -Dsonar.branch.name=${{ github.feature/devops }} 
+          -Dsonar.branch.name=${{ github.ref_name }} 
