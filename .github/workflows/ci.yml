@@ -28,14 +28,14 @@ jobs:
       - name: Собрать и анализировать проект в SonarCloud
         run: |
           cd calculatorApp
-          mvn clean verify jacoco:report
-          mvn sonar:sonar \
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.organization=AntonLyovin \
             -Dsonar.projectKey=AntonLyovin_Credit-Service \
             -Dsonar.branch.name=feature/devops \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-     
+
+      
 
       - name: Отправить отчёт о покрытии в Codecov
         run: bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }}
