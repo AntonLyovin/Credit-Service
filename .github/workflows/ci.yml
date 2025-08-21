@@ -16,7 +16,7 @@ jobs:
         with:
           ref: feature/devops
         
-      - name: Переключиться на ветку develop/feature/devops
+      - name: Переключиться на ветку feature/devops (если нужно)
         run: git checkout feature/devops
 
       - name: Настроить JDK
@@ -25,22 +25,16 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Собрать модуль calculatorApp
+      - name: Собрать и анализировать проект в SonarCloud
         run: |
           cd calculatorApp
-          mvn sonar:sonar -Dsonar.branch.name=feature/devops
           mvn clean verify jacoco:report
+          mvn sonar:sonar \
+            -Dsonar.organization=AntonLyovin \
+            -Dsonar.projectKey=Credit-Service \
+            -Dsonar.branch.name=feature/devops \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
       - name: Отправить отчёт о покрытии в Codecov
         run: bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Проверка качества кода в SonarCloud
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB }}
-        run: |
-          cd calculatorApp
-          mvn sonar:sonar \
-            -Dsonar.organization=AntonLyovin \
-            -Dsonar.projectKey=Credit-Service -Dsonar.branch.name=feature/devops \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
