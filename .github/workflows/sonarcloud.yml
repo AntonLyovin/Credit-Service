@@ -25,6 +25,7 @@ jobs:
 
     - name: Analyze with SonarCloud
       run: |
+        cd calculatorApp
         mvn sonar:sonar \
           -Dsonar.projectKey=AntonLyovin_Credit-Service \
           -Dsonar.branch.name=${{ github.ref_name }} \
