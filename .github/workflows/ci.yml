@@ -27,7 +27,7 @@ jobs:
 
       - name: Собрать модуль deal-service
         run: |
-          cd deal-service
+          cd calculatorApp
           mvn clean verify jacoco:report
 
       - name: Отправить отчёт о покрытии в Codecov
@@ -35,9 +35,9 @@ jobs:
 
       - name: Проверка качества кода в SonarCloud
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB }}
         run: |
-          cd deal-service
+          cd calculatorApp
           mvn sonar:sonar \
             -Dsonar.organization=my-org \
             -Dsonar.projectKey=my-project \
