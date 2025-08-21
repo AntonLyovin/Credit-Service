@@ -1,0 +1,30 @@
+name: SonarCloud Analysis
+on:
+  push:
+    branches: [ feature/devops ] 
+  pull_request:
+    branches: [ main ] 
+jobs:
+  sonarcloud-analysis:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: feature/devops
+        fetch-depth: 0  
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Build and analyze
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Токен из secrets GitHub
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Токен автоматически предоставляется GitHub
+      run: |
+        ./gradlew build --no-daemon # или "mvn compile" для Maven
+        ./gradlew sonar --no-daemon \
+          -Dsonar.projectKey=AntonLyovin_Credit-Service \
+          -Dsonar.branch.name=${{ github.feature/devops }} 
