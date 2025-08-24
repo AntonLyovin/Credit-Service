@@ -1,4 +1,4 @@
-name: CI 
+name: CI
 
 on:
   push:
@@ -16,8 +16,8 @@ jobs:
       with:
         ref: feature/devops
 
-    - name: Set up JDK 
-      uses: actions/setup-java@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
@@ -38,25 +38,24 @@ jobs:
             echo "🧪 Тестирование модуля: $module в ветке feature/devops"
             mvn clean test -pl $module
           else
-            echo "⚠️  Модуль $module не найден в ветке feature/devops"
+            echo " Модуль $module не найден в ветке feature/devops"
           fi
         done
 
     - name: Upload test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: test-results-devops-branch
         path: |
           **/target/surefire-reports
           **/target/failsafe-reports
-        retention-days: 7
 
     - name: Final status
       run: |
         if [ "${{ job.status }}" == "success" ]; then
-          echo "🎉 CI/CD пайплайн для ветки feature/devops выполнен успешно!"
+          echo " CI/CD пайплайн для ветки feature/devops выполнен успешно!"
         else
-          echo "💥 CI/CD пайплайн для ветки feature/devops завершился с ошибками"
+          echo " CI/CD пайплайн для ветки feature/devops завершился с ошибками"
           exit 1
         fi
