@@ -7,11 +7,11 @@ on:
     branches: [ feature/devops ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code from feature/devops branch
+    - name: Checkout code
       uses: actions/checkout@v4
       with:
         ref: feature/devops
@@ -23,39 +23,39 @@ jobs:
         distribution: 'temurin'
         cache: 'maven'
 
-    - name: Verify branch
+    - name: Discover project structure
+      id: discover
       run: |
-        echo "Рабочая ветка: $(git branch --show-current)"
-        echo "Сборка выполняется для ветки: feature/devops"
+        echo "Анализ структуры проекта..."
+        
 
-    - name: Build and test all modules
-      run: mvn clean test
+        POM_FILES=$(find . -name "pom.xml" -type f -not -path "*/target/*")
+        echo "Найдены POM файлы:"
+        echo "$POM_FILES"
+        
 
-    - name: Build and test each module separately
+        if [ -f "pom.xml" ]; then
+          WORK_DIR="."
+          echo "root-dir=." >> $GITHUB_OUTPUT
+        else
+          WORK_DIR=$(echo "$POM_FILES" | head -1 | xargs dirname)
+          echo "root-dir=$WORK_DIR" >> $GITHUB_OUTPUT
+        fi
+        
+        echo "Рабочая директория: $WORK_DIR"
+
+    - name: Build and test from discovered directory
       run: |
-        for module in calculatorApp deal-service dossier-service gateway-service statement-service; do
-          if [ -d "$module" ]; then
-            echo "🧪 Тестирование модуля: $module в ветке feature/devops"
-            mvn clean test -pl $module
-          else
-            echo " Модуль $module не найден в ветке feature/devops"
-          fi
-        done
+        cd "${{ steps.discover.outputs.root-dir }}"
+        echo "Сборка из директории: $(pwd)"
+        echo "Содержимое:"
+        ls -la
+        
+        mvn clean test
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: test-results-devops-branch
-        path: |
-          **/target/surefire-reports
-          **/target/failsafe-reports
-
-    - name: Final status
-      run: |
-        if [ "${{ job.status }}" == "success" ]; then
-          echo " CI/CD пайплайн для ветки feature/devops выполнен успешно!"
-        else
-          echo " CI/CD пайплайн для ветки feature/devops завершился с ошибками"
-          exit 1
-        fi
+        name: test-results-devops
+        path: ${{ steps.discover.outputs.root-dir }}/**/target/surefire-reports
