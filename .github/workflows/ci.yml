@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [ feature/devops ]
+  pull_request:
+    branches: [ feature/devops ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: feature/devops
+
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: Discover project structure
+      id: discover
+      run: |
+        echo "Анализ структуры проекта..."
+        
+
+        POM_FILES=$(find . -name "pom.xml" -type f -not -path "*/target/*")
+        echo "Найдены POM файлы:"
+        echo "$POM_FILES"
+        
+
+        if [ -f "pom.xml" ]; then
+          WORK_DIR="."
+          echo "root-dir=." >> $GITHUB_OUTPUT
+        else
+          WORK_DIR=$(echo "$POM_FILES" | head -1 | xargs dirname)
+          echo "root-dir=$WORK_DIR" >> $GITHUB_OUTPUT
+        fi
+        
+        echo "Рабочая директория: $WORK_DIR"
+
+    - name: Build and test from discovered directory
+      run: |
+        cd "${{ steps.discover.outputs.root-dir }}"
+        echo "Сборка из директории: $(pwd)"
+        echo "Содержимое:"
+        ls -la
+        
+        mvn clean test
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-devops
+        path: ${{ steps.discover.outputs.root-dir }}/**/target/surefire-reports

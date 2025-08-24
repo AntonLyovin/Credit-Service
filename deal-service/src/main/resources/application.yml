@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/db01
+    url: jdbc:postgresql://db:5432/db01
     username: postgres
     password: qwerty123
     driver-class-name: org.postgresql.Driver
@@ -15,6 +15,10 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.xml
     default-schema: public
 
+
+  kafka:
+    bootstrap-servers: kafka:29092
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -27,9 +31,9 @@ server:
 
 scoring:
   service:
-    url: http://localhost:8080/calculator/calc
+    url: http://calculator-service:8080/calculator/calc
 
 pre-scoring:
   service:
-    url: http://localhost:8080/calculator/offers
+    url: http://calculator-service:8080/calculator/offers
 

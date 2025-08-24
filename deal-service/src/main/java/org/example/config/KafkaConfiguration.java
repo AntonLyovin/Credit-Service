@@ -49,7 +49,7 @@ public class KafkaConfiguration {
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> configs = new HashMap<>();
-        configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:29092");
         configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.springframework.kafka.support.serializer.JsonSerializer");
         return new DefaultKafkaProducerFactory<>(configs);
