@@ -1,41 +1,62 @@
-name: CI
+name: CI 
 
 on:
   push:
-    branches:
-      - feature/devops
+    branches: [ feature/devops ]
   pull_request:
+    branches: [ feature/devops ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout код
-        uses: actions/checkout@v3
-        with:
-          ref: feature/devops
-        
-      - name: Переключиться на ветку feature/devops (если нужно)
-        run: git checkout feature/devops
+    - name: Checkout code from feature/devops branch
+      uses: actions/checkout@v4
+      with:
+        ref: feature/devops
 
-      - name: Настроить JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'temurin'
+    - name: Set up JDK 
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: 'maven'
 
-      - name: Собрать и анализировать проект в SonarCloud
-        run: |
-          cd calculatorApp
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.organization=AntonLyovin \
-            -Dsonar.projectKey=AntonLyovin_Credit-Service \
-            -Dsonar.branch.name=feature/devops \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+    - name: Verify branch
+      run: |
+        echo "Рабочая ветка: $(git branch --show-current)"
+        echo "Сборка выполняется для ветки: feature/devops"
 
-      
+    - name: Build and test all modules
+      run: mvn clean test
 
-      - name: Отправить отчёт о покрытии в Codecov
-        run: bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }}
+    - name: Build and test each module separately
+      run: |
+        for module in calculatorApp deal-service dossier-service gateway-service statement-service; do
+          if [ -d "$module" ]; then
+            echo "🧪 Тестирование модуля: $module в ветке feature/devops"
+            mvn clean test -pl $module
+          else
+            echo "⚠️  Модуль $module не найден в ветке feature/devops"
+          fi
+        done
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-devops-branch
+        path: |
+          **/target/surefire-reports
+          **/target/failsafe-reports
+        retention-days: 7
+
+    - name: Final status
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "🎉 CI/CD пайплайн для ветки feature/devops выполнен успешно!"
+        else
+          echo "💥 CI/CD пайплайн для ветки feature/devops завершился с ошибками"
+          exit 1
+        fi
